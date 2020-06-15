@@ -15,7 +15,7 @@ const config = {
   hospitalizaceOutputFile: '../datasets/hospitalizace.json',
 
   newsOutputFile: '../datasets/news.json',
-  newsEarliestStart: '2020-06-09'
+  newsEarliestStart: '2020-03-20'
 }
 
 const configInternal = {

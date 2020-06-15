@@ -1,9 +1,9 @@
 /*
  * Loader for major CZ news server coverage ratio.
- * Top 3-5 most read servers according to https://cs.wikipedia.org/wiki/M%C3%A9dia_v_%C4%8Cesku#Internetov%C3%A9_port%C3%A1ly
+ * Top 2-5 most read servers according to https://cs.wikipedia.org/wiki/M%C3%A9dia_v_%C4%8Cesku#Internetov%C3%A9_port%C3%A1ly
  * Sources:
  * ☑ https://novinky.cz
- * ☐ https://zpravy.idnes.cz
+ * ☑ https://zpravy.idnes.cz
  * ☐ https://aktualne.cz
  * ☒ https://blesk.cz
  * ☒ https://denik.cz
@@ -23,6 +23,10 @@ const conf = require('./configuration')();
 const progress = {};
 const sources = {};
 
+const wait = async function(time) {
+  return new Promise((ok,ko) => {setTimeout(ok, time)})
+}
+
 //-------
 
 sources['novinky'] = async function loadDataNovinky(since) {
@@ -34,13 +38,8 @@ sources['novinky'] = async function loadDataNovinky(since) {
   }
 
   const urlTemplate = "https://www.novinky.cz/api/documenttimelines?service=novinky&maxItems=8&itemIds={categoryId}&lastItemId={lastItemId}&loadingNextItems=1&sort=-dateOfPublication%2C-uid&embedded=sectionsTree";
-  const waitTime = 1000;
-
+  const waitTime = 500;
   const articles = {};
-
-  const wait = async function(time) {
-    return new Promise((ok,ko) => {setTimeout(ok, time)})
-  }
 
   const loadArticlesInCategory = async function(categoryName) {
     const category = categories[categoryName]
@@ -99,6 +98,77 @@ sources['novinky'] = async function loadDataNovinky(since) {
 
 //----------
 
+sources['idnes'] = async function loadDataIDnes(since) {
+  const categories = {
+    zpravodajstvi: {urlFn: (p) => "https://www.idnes.cz/zpravy/archiv/" + p, korona: false},
+    koronavirus_domaci: {urlFn: (p) => `https://www.idnes.cz/wiki/temata/koronavirus-v-cesku.K533269/${p}`, korona: true},
+    koronavirus_zahranici: {urlFn: (p => {
+      return p==1 ? "https://www.idnes.cz/koronavirus/clanky" : `https://www.idnes.cz/zpravy/zahranicni/koronavirus.K466979/${p}`
+    }) , korona: true}
+  }
+  const articleLinkPattern = /.*\.A(\d{6}_\d{6}).*/
+  const waitTime = 1000;
+  const articles = {};
+
+  const loadArticlesInCategory = async function(categoryName) {
+    let page=0
+    do {
+      if (page++ > 0) {
+        await wait(waitTime);
+      }
+      const url = categories[categoryName].urlFn(page);
+      try {
+        const response = await fetch(url);
+        const html = await response.text();
+        const $ = cheerio.load(html);
+        const data = $('div.art').map((i,e) => {
+          return {
+            id: articleLinkPattern.test($('a',e).attr('href')) ? articleLinkPattern.exec($('a',e).attr('href'))[1] : false,
+            dateUpdated: $('span.time', e).attr('datetime')
+          }
+        }).get().filter(a => a.id);
+        articles[categoryName].push(...data);
+      } catch (e) {
+        console.log(`error fetching ${url}, will try again`, e);
+        page--;
+      }
+      
+      progress.idnes = "idnes.cz: ";
+      Object.keys(categories).forEach(c => progress.idnes += `${c} ${articles[c].length? articles[c][articles[c].length-1].dateUpdated : '-'}, `);
+    } while (articles[categoryName][articles[categoryName].length-1].dateUpdated >= since)
+
+    return articles;
+  }
+
+  for (categoryName in categories) {
+    articles[categoryName] = [];
+  }
+
+  for (categoryName in categories) {
+    await loadArticlesInCategory(categoryName);
+  }
+
+  const union = {};
+  Object.keys(categories).forEach(categoryName => {
+    articles[categoryName].forEach(a => {
+      if (!union[a.id]) union[a.id] = a;
+      a[categories[categoryName].korona? 'koronaY' : 'koronaN'] = true;
+    })
+  })
+
+  const countsByDate = {};
+  Object.keys(union).forEach(aId => {
+    const date = '20'+aId.substr(0,2)+'-'+aId.substr(2,2)+'-'+aId.substr(4,2);
+    if (!countsByDate[date]) countsByDate[date] = {korona:0, total:0};
+    if (union[aId].koronaY) countsByDate[date].korona++;
+    countsByDate[date].total++;
+  })
+
+  return countsByDate;
+}
+
+//-----------
+
 let result = { dates: [], news: {} };
 let startDate = conf.newsEarliestStart;
 try {
@@ -147,3 +217,4 @@ Promise.all(Object.values(sources).map(fn => fn(startDate))).then((data) => {
 reportingInterval = setInterval(() => {
   console.log(JSON.stringify(progress, null, 2));
 }, 1000)
+
