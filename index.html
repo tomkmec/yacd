@@ -30,27 +30,15 @@
   <meta name="theme-color" content="#fafafa">
 
   <style type="text/css">
-    .ct-series-a .ct-line, .ct-series-c .ct-line {
-      stroke-width:1px;
-      opacity:0.3;
-    }
-    .ct-series-a .ct-point, .ct-series-c .ct-point {
-      stroke-width:5px;
-      opacity:0.3;
-    }
-    .ct-series-b .ct-point, .ct-series-d .ct-point {
-      display:none;
-    }
     @font-face {
       font-family: Infected;
       src: url("public/covid-infected.otf") format("opentype");
     }
     main {
-
       font-family: Roboto;
       margin: 0 auto;
       max-width: 800px;
-      padding: 2em;
+      padding: 1em;
     }
     h1 {
       font-family: Infected;
@@ -60,14 +48,41 @@
       margin-left: 0;
       margin-bottom: 0;
     }
+    h2 {
+      margin-top: 2em;
+    }
 
-.ct-series-a *, .ct-series-b * {
+    .ct-line.thin {
+      stroke-width:1px;
+    }
+    #r0-chart .ct-series-a .ct-point {
+      stroke-width:5px;
+    }
+
+    #news-coverage-chart .ct-series-a .ct-line, #news-coverage-chart .ct-series-c .ct-line {
+      stroke-width:1px;
+      opacity:0.3;
+    }
+    #news-coverage-chart .ct-series-a .ct-point, #news-coverage-chart .ct-series-c .ct-point {
+      stroke-width:5px;
+      opacity:0.3;
+    }
+    #news-coverage-chart .ct-series-b .ct-point, #news-coverage-chart .ct-series-d .ct-point {
+      display:none;
+    }
+
+#news-coverage-chart .ct-series-a *, #news-coverage-chart .ct-series-b * {
   stroke: rgb(140, 35, 38) !important;
 }
 
-.ct-series-c *, .ct-series-d * {
+#news-coverage-chart .ct-series-c *, #news-coverage-chart .ct-series-d * {
   stroke: #E41F1F !important;
 }
+
+#county-chart span.ct-label {
+  font-size:.5rem;
+}
+
 ul.news-legend {
   margin-top: 0;
 }
@@ -91,6 +106,13 @@ li.idnes {
 <body>
   <main>
     <h1>Yet Another COVID Dashboard</h1>
+
+    <h2>Number of critical cases</h2>
+    <figure id="critical-cases-chart" class="ct-chart ct-golden-section"></figure>
+
+    <h2>Cases per county</h2>
+    <figure id="county-chart" class="ct-chart ct-square"></figure>
+
     <h2>Media coverage over time</h2>
     <p>as percentage of total news articles being in coronavirus-related sections</p>
     <figure id="news-coverage-chart" class="ct-chart ct-golden-section"></figure>
@@ -99,10 +121,12 @@ li.idnes {
       <li class="idnes">idnes.cz</li>
     </ul>
 
+    <h2>R<sub>0</sub> estimate</h2>
+    <figure id="r0-chart" class="ct-chart ct-golden-section"></figure>
+
 
   </main>
   <!-- Add your site or application content here -->
-  <
   <script src="public/js/vendor/modernizr-3.11.2.min.js"></script>
   <script src="public/js/plugins.js"></script>
   <script src="public/js/main.js"></script>
@@ -142,14 +166,144 @@ li.idnes {
           labelInterpolationFnc: function(value) {
             return dayjs(value).format('MMMM D');
           }
-        }/*,
-        plugins: [
-          Chartist.plugins.legend()
-        ]*/
+        },
+        axisY: {
+          labelInterpolationFnc: function(value) {
+            return value+"%";
+          }
+        },
+        chartPadding: 0
       }
       
       new Chartist.Line('#news-coverage-chart', chartData, options);  
     });
+
+    fetch('datasets/hospitalizace.json').then(response => response.json()).then(data => {
+      const datesSlice = data.dates.slice(data.dates.indexOf("2020-03-20"));
+      const valuesSlice = data.hospitalizations.critical.slice(data.dates.indexOf("2020-03-20"));
+      const chartData = {
+        labels: datesSlice,
+        series: [valuesSlice.map((n,i) => {return {
+          x: dayjs(datesSlice[i]).toDate(),
+          y: n
+        }})]
+      }
+      const options = {
+        low: 0,
+        axisX: {
+          type: Chartist.FixedScaleAxis,
+          ticks: datesSlice.filter(d => d.lastIndexOf('-01') == 7).map(d => dayjs(d).toDate()),
+          labelInterpolationFnc: function(value) {
+            return dayjs(value).format('MMMM D');
+          }
+        },
+        axisY: {
+          onlyInteger: true
+        },
+        showPoint: false,
+        chartPadding: 0
+      }
+      new Chartist.Line('#critical-cases-chart', chartData, options);  
+    });
+
+    fetch('datasets/r0.json').then(response => response.json()).then(data => {
+      const datesSlice = data.dates.slice(data.dates.indexOf("2020-03-20"));
+      const valuesSlice = {};
+      for (key in data.estimates) {
+        valuesSlice[key] = data.estimates[key].slice(data.dates.indexOf("2020-03-20"));
+      }
+      const chartData = {
+        labels: datesSlice,
+        series: ['r0'].map(set => 
+          valuesSlice[set].map((n,i) => {return {x: dayjs(datesSlice[i]).toDate(), y: n }})
+        )
+      }
+      const options = {
+        low:0, high:2.5,
+        axisX: {
+          type: Chartist.FixedScaleAxis,
+          ticks: datesSlice.filter(d => d.lastIndexOf('-01') == 7).map(d => dayjs(d).toDate()),
+          labelInterpolationFnc: function(value) {
+            return dayjs(value).format('MMMM D');
+          }
+        },
+        showLine: false,
+        showArea: true,
+        areaBase: 1,
+        chartPadding: 0
+      }
+      r0Chart = new Chartist.Line('#r0-chart', chartData, options);  
+      r0Chart.on('draw', (data) => {
+        if (data.type === 'point') {
+          ymax = data.axisY.axisLength*(1-(valuesSlice.high[data.index]-data.axisY.range.min)/(data.axisY.range.max-data.axisY.range.min))
+          ymin = data.axisY.axisLength*(1-(valuesSlice.low[data.index]-data.axisY.range.min)/(data.axisY.range.max-data.axisY.range.min))
+          data.group
+            .append(new Chartist.Svg('line', {x1: data.x, y1: data.y, x2:data.x, y2:ymax, class:"ct-line thin"}))
+            .append(new Chartist.Svg('line', {x1: data.x, y1: data.y, x2:data.x, y2:ymin, class:"ct-line thin"}))
+        }
+      })
+    });
+
+    fetch('datasets/okresy.json').then(response => response.json()).then(data => {
+      const counties = {};
+      let max = 0;
+      for (let kraj in data.counts) {
+        for (let okres in data.counts[kraj]) {
+          counties[okres.replace('nad','n.')] = data.counts[kraj][okres].map((x, i, a) => {
+            const change = x - (i==0? 0 : a[i-1]);
+            if (change > max) max = change;
+            return change;
+          });
+        }
+      }
+
+      const color = (change) => {
+        const threshold = 10;
+        if (change <= threshold) {
+          const x = Math.floor(255*(1-(Math.max(change,0)/threshold)));
+          return '255,'+ x + ',' + x;
+        } else {
+          const x = Math.floor(255*(1-(Math.min(change,150)-threshold)/(150-threshold)));
+          return x+',0,0';
+        }
+      }
+
+      const keys = Object.keys(counties);
+      new Chartist.Bar('#county-chart', {
+        labels: keys,
+        series: data.dates.map(date => {
+          return Object.values(counties).map(count => 24*3600*1000)
+        })
+      }, {
+        horizontalBars: true,
+        stackBars: true,
+        // reverseData: true,
+        axisX: {
+          labelInterpolationFnc: function(value) {
+            return dayjs(value).add(dayjs(data.dates[0])).format('MMM D');
+          },
+          //high: 24*3600*1000*data.dates.length,
+          type: Chartist.FixedScaleAxis,
+          ticks: data.dates.filter(d => d.lastIndexOf('-01') == 7).map(d => dayjs(d).subtract(dayjs(data.dates[0])).toDate().getTime()),
+        },
+        axisY: {
+          offset:75
+        }
+      }).on('draw', function(data) {
+        if(data.type === 'bar') {
+          let value = 0;
+          try {
+            value = counties[keys[data.index]][data.seriesIndex]
+          } catch (e) {
+            console.log(data.index, data.seriesIndex, keys[data.seriesIndex], counties[keys[data.seriesIndex]])
+          }
+          data.element.attr({
+            style: 'stroke:rgb('+color(value)+'); stroke-width:5px'
+          });
+        }
+      });
+    });
+
   </script>
 
   <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
@@ -160,7 +314,7 @@ li.idnes {
     ga('create', 'UA-XXXXX-Y', 'auto'); ga('set', 'anonymizeIp', true); ga('set', 'transport', 'beacon'); ga('send', 'pageview')
   </script>
   <script src="https://www.google-analytics.com/analytics.js" async></script>
--- >  
+-->  
 </body>
 
 </html>

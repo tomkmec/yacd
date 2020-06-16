@@ -9,7 +9,7 @@ const config = {
   r0SpreadsheetWorksheetIndex: 0,
   r0OutputFile: '../datasets/r0.json',
 
-  hospitalizaceUrl: 'https://onemocneni-aktualne.mzcr.cz/covid-19',
+  hospitalizaceUrl: 'https://onemocneni-aktualne.mzcr.cz/covid-19/prehled-hospitalizaci',
   hospitalizaceDataElementPath: 'div#js-hospitalization-data',
   hospitalizaceDataAttribute: 'data-linechart',
   hospitalizaceOutputFile: '../datasets/hospitalizace.json',
