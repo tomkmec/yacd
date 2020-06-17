@@ -79,7 +79,7 @@
   stroke: #E41F1F !important;
 }
 
-#county-chart span.ct-label {
+#county-chart span.ct-label.ct-vertical {
   font-size:.5rem;
 }
 
@@ -107,22 +107,68 @@ li.idnes {
   <main>
     <h1>Yet Another COVID Dashboard</h1>
 
-    <h2>Number of critical cases</h2>
-    <figure id="critical-cases-chart" class="ct-chart ct-golden-section"></figure>
+    <section>
+      <h2>Hospitalizace, těžký stav</h2>
+      <details>
+        <summary>Podrobnosti</summary>
+        <p>Počet hospitalizovaných osob v těžkém stavu a/nebo s vysoce intensivní péčí. Ukazuje nebezpečí přetížení zdravotnického systému</p>
+        <p>Zdroj: <a href="https://onemocneni-aktualne.mzcr.cz/covid-19/prehled-hospitalizaci">Ministerstvo zdravotnictví</a>
+      </details>
+      <figure id="critical-cases-chart" class="ct-chart ct-golden-section"></figure>
+    </section>
 
-    <h2>Cases per county</h2>
-    <figure id="county-chart" class="ct-chart ct-square"></figure>
+    <section>
+      <h2>Přísrůstek případů v okresech</h2>
+      <details>
+        <summary>Podrobnosti</summary>
+        <p>
+          Denní přírůstek počtu nakažených v jednotlivých okresech jak je hlásí z KHS. Ukazuje nakolik jsou nové případy lokalizované
+          <div>
+            <span style="width:5em;color:black;display:inline-block;background:linear-gradient(90deg, rgb(255,255,255), rgba(255,0,0))">0</span><span style="background-color:red;color:white;display:inline-block ">10</span><span style="width:5em;color:white;text-align:right;display:inline-block;background:linear-gradient(90deg, rgb(255,0,0), rgba(0,0,0))">150+</span>
+          </div>
+        </p>
+        <p>
+          Zdroj: <a href="https://onemocneni-aktualne.mzcr.cz/covid-19/prehled-hospitalizaci">COVID-19 po okresech z KHS</a>.
+          Přehled je aktualizován ručně, nemusí být vždy přesný.
+        </p>
+      </details>
+      <figure id="county-chart" class="ct-chart ct-square"></figure>
+    </section>
 
-    <h2>Media coverage over time</h2>
-    <p>as percentage of total news articles being in coronavirus-related sections</p>
-    <figure id="news-coverage-chart" class="ct-chart ct-golden-section"></figure>
-    <ul class="news-legend">
-      <li class="novinky">novinky.cz</li>
-      <li class="idnes">idnes.cz</li>
-    </ul>
+    <section>
+      <h2>Podíl koronavirového obsahu na zpravodajských serverech</h2>
+      <details>
+        <summary>Podrobnosti</summary>
+        <p>
+          Podíl článků publikovaných v daný den zařazených v koronavirových sekcích k celkovému počtu čzpravodajských článků ten den. Ukazuje míru mediální masáže. Denní hodnoty (slabě) a 7-denní klouzavý průměr (silně).
+          <div>
+            <ul class="news-legend">
+              <li class="novinky">novinky.cz</li>
+              <li class="idnes">idnes.cz</li>
+            </ul>
+          </div>
+        </p>
+        <p>
+          Zdroje: <a href="https://cs.wikipedia.org/wiki/M%C3%A9dia_v_%C4%8Cesku#Internetov%C3%A9_port%C3%A1ly">Wikipedie: nejčtenější zpravodajské servery</a>, <a href="https://zpravy.idnes.cz">idnes.cz</a>, <a href="https://novinky.cz">novinky.cz</a>
+        </p>
+      </details>
+      <figure id="news-coverage-chart" class="ct-chart ct-golden-section"></figure>
+    </section>
 
-    <h2>R<sub>0</sub> estimate</h2>
-    <figure id="r0-chart" class="ct-chart ct-golden-section"></figure>
+    <section>
+      <h2>Odhad reprodukčního čísla</h2>
+      <details>
+        <summary>Podrobnosti</summary>
+        <p>
+          Odhad <a href="https://cs.wikipedia.org/wiki/Index_naka%C5%BElivosti">reprodukčního čísla</a>. Ukazuje rychlost šíření nákazy v populaci (kolik lidí nakazí jeden nemocný člověk).
+        </p>
+        <p>
+          Zdroj: <a href="https://docs.google.com/spreadsheets/d/1cCCECunGrLmcxp5RwTRvHPLPi2Uh2J8b4NIoyFDcu7c/edit#gid=1683234482">Czech R<sub>0</sub> estimate</a>, od <a href="https://github.com/netique">Jana Netíka</a>(?) / <a href="https://covid19cz.cz/">covid19cz</a>
+        </p>
+      </details>
+      <figure id="r0-chart" class="ct-chart ct-double-octave"></figure>
+    </section>
+
 
 
   </main>
