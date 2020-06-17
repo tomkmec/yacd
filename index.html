@@ -24,7 +24,6 @@
 
   <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
   <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
-  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/chartist-plugin-legend/0.6.2/chartist-plugin-legend.min.js" integrity="sha256-LkXH5CAC8vTIG9oLUGvOv2Jx6wq8VDAQXgvBgohNolU=" crossorigin="anonymous"></script> -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
   <meta name="theme-color" content="#fafafa">
@@ -55,8 +54,24 @@
     .ct-line.thin {
       stroke-width:1px;
     }
-    #r0-chart .ct-series-a .ct-point {
-      stroke-width:5px;
+
+    #r0-chart .ct-area {
+      fill-opacity:1;
+    }
+
+    #r0-chart .ct-series-a .ct-area {
+      fill: #feadae;
+      /*stroke: #AAA;*/
+    }
+
+    #r0-chart .ct-series-b .ct-area {
+      fill: white;
+      /*stroke: #AAA;*/
+    }
+
+    #r0-chart .ct-series-c .ct-line {
+      stroke: #d70206;
+      stroke-width:3px;
     }
 
     #news-coverage-chart .ct-series-a .ct-line, #news-coverage-chart .ct-series-c .ct-line {
@@ -71,34 +86,34 @@
       display:none;
     }
 
-#news-coverage-chart .ct-series-a *, #news-coverage-chart .ct-series-b * {
-  stroke: rgb(140, 35, 38) !important;
-}
+    #news-coverage-chart .ct-series-a *, #news-coverage-chart .ct-series-b * {
+      stroke: rgb(140, 35, 38) !important;
+    }
 
-#news-coverage-chart .ct-series-c *, #news-coverage-chart .ct-series-d * {
-  stroke: #E41F1F !important;
-}
+    #news-coverage-chart .ct-series-c *, #news-coverage-chart .ct-series-d * {
+      stroke: #E41F1F !important;
+    }
 
-#county-chart span.ct-label.ct-vertical {
-  font-size:.5rem;
-}
+    #county-chart span.ct-label.ct-vertical {
+      font-size:.5rem;
+    }
 
-ul.news-legend {
-  margin-top: 0;
-}
-ul.news-legend li {
-  display: inline;
-  margin-right: 0 1em;
-  padding: 0 1em;
-  font-weight: bold;
-  color: white;
-}
-li.novinky {
-  background-color: rgb(140, 35, 38);
-}
-li.idnes {
-  background-color: #E41F1F;
-}
+    ul.news-legend {
+      margin-top: 0;
+    }
+    ul.news-legend li {
+      display: inline;
+      margin-right: 0 1em;
+      padding: 0 1em;
+      font-weight: bold;
+      color: white;
+    }
+    li.novinky {
+      background-color: rgb(140, 35, 38);
+    }
+    li.idnes {
+      background-color: #E41F1F;
+    }
 
   </style>
 </head>
@@ -114,7 +129,7 @@ li.idnes {
         <p>Počet hospitalizovaných osob v těžkém stavu a/nebo s vysoce intensivní péčí. Ukazuje nebezpečí přetížení zdravotnického systému</p>
         <p>Zdroj: <a href="https://onemocneni-aktualne.mzcr.cz/covid-19/prehled-hospitalizaci">Ministerstvo zdravotnictví</a>
       </details>
-      <figure id="critical-cases-chart" class="ct-chart ct-golden-section"></figure>
+      <figure id="critical-cases-chart" class="ct-chart ct-octave"></figure>
     </section>
 
     <section>
@@ -128,7 +143,7 @@ li.idnes {
           </div>
         </p>
         <p>
-          Zdroj: <a href="https://onemocneni-aktualne.mzcr.cz/covid-19/prehled-hospitalizaci">COVID-19 po okresech z KHS</a>.
+          Zdroj: <a href="https://docs.google.com/spreadsheets/d/1FFEDhS6VMWon_AWkJrf8j3XxjZ4J6UI1B2lO3IW-EEc/edit#gid=1011737151">COVID-19 po okresech z KHS</a>.
           Přehled je aktualizován ručně, nemusí být vždy přesný.
         </p>
       </details>
@@ -168,8 +183,6 @@ li.idnes {
       </details>
       <figure id="r0-chart" class="ct-chart ct-double-octave"></figure>
     </section>
-
-
 
   </main>
   <!-- Add your site or application content here -->
@@ -260,9 +273,10 @@ li.idnes {
       }
       const chartData = {
         labels: datesSlice,
-        series: ['r0'].map(set => 
-          valuesSlice[set].map((n,i) => {return {x: dayjs(datesSlice[i]).toDate(), y: n }})
-        )
+        series: ['high','low', 'r0'].map(set => {return {
+          name: set,
+          data: valuesSlice[set].map((n,i) => {return {x: dayjs(datesSlice[i]).toDate(), y: n }})
+        }})
       }
       const options = {
         low:0, high:2.5,
@@ -273,21 +287,20 @@ li.idnes {
             return dayjs(value).format('MMMM D');
           }
         },
-        showLine: false,
-        showArea: true,
-        areaBase: 1,
+        series: {
+          high: {
+            showLine: false, showPoint:false, showArea:true
+          },
+          low: {
+            showLine: false, showPoint:false, showArea:true
+          },
+          r0: {
+            showPoint:false
+          }
+        },
         chartPadding: 0
       }
-      r0Chart = new Chartist.Line('#r0-chart', chartData, options);  
-      r0Chart.on('draw', (data) => {
-        if (data.type === 'point') {
-          ymax = data.axisY.axisLength*(1-(valuesSlice.high[data.index]-data.axisY.range.min)/(data.axisY.range.max-data.axisY.range.min))
-          ymin = data.axisY.axisLength*(1-(valuesSlice.low[data.index]-data.axisY.range.min)/(data.axisY.range.max-data.axisY.range.min))
-          data.group
-            .append(new Chartist.Svg('line', {x1: data.x, y1: data.y, x2:data.x, y2:ymax, class:"ct-line thin"}))
-            .append(new Chartist.Svg('line', {x1: data.x, y1: data.y, x2:data.x, y2:ymin, class:"ct-line thin"}))
-        }
-      })
+      new Chartist.Line('#r0-chart', chartData, options);  
     });
 
     fetch('datasets/okresy.json').then(response => response.json()).then(data => {
@@ -347,6 +360,12 @@ li.idnes {
             style: 'stroke:rgb('+color(value)+'); stroke-width:5px'
           });
         }
+      }).on('created', function(data) {
+        // move the grids to the end of the SVG to overlay the non-transparent area
+        const svg = document.querySelector('#r0-chart svg');
+        const grids = svg.querySelector('.ct-grids');
+        grids.remove();
+        svg.appendChild(grids);
       });
     });
 
