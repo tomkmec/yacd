@@ -11,12 +11,7 @@
   <meta property="og:type" content="">
   <meta property="og:url" content="">
   <meta property="og:image" content="">
-<!--
-  <link rel="manifest" href="site.webmanifest">
-  <link rel="apple-touch-icon" href="icon.png">
--->
-  <!-- Place favicon.ico in the root directory -->
-
+  <link rel="apple-touch-icon" href="public/icon.png">
   <link rel="stylesheet" href="public/css/normalize.css">
   <link rel="stylesheet" href="public/css/main.css">
 
@@ -24,7 +19,7 @@
 
   <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
   <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Catamaran:wght@400;700&display=swap" rel="stylesheet">
 
   <meta name="theme-color" content="#fafafa">
 
@@ -33,11 +28,15 @@
       font-family: Infected;
       src: url("public/covid-infected.otf") format("opentype");
     }
-    main {
-      font-family: Roboto;
+    main, footer {
+      font-family: 'Catamaran';
+      /*font-size:140%;*/
       margin: 0 auto;
       max-width: 800px;
       padding: 1em;
+    }
+    footer {
+      border-top:1px dotted black;
     }
     h1 {
       font-family: Infected;
@@ -48,7 +47,34 @@
       margin-bottom: 0;
     }
     h2 {
-      margin-top: 2em;
+      margin: 1em 0 0 0;
+    }
+    @media (max-width:1199px) {
+    }
+
+
+    @media (min-width:1200px) {
+      summary {
+        display: none;
+      }
+      h2 {
+        margin: 0;
+      }
+      main, footer {
+        width: 1200px;
+        max-width: 1200px;
+      }
+      aside {
+        float: right;
+        width: 400px;
+        padding-left:2em;
+        margin-left:800px;
+        position:absolute;
+      }
+      figure {
+        max-width: 800px;
+        width: 800px;
+      }
     }
 
     .ct-line.thin {
@@ -72,6 +98,10 @@
     #r0-chart .ct-series-c .ct-line {
       stroke: #d70206;
       stroke-width:3px;
+    }
+    #r0-chart .ct-series-d .ct-line {
+      stroke: #000;
+      stroke-width: 1px;
     }
 
     #news-coverage-chart .ct-series-a .ct-line, #news-coverage-chart .ct-series-c .ct-line {
@@ -123,68 +153,80 @@
     <h1>Yet Another COVID Dashboard</h1>
 
     <section>
-      <h2>Hospitalizace, těžký stav</h2>
-      <details>
-        <summary>Podrobnosti</summary>
-        <p>Počet hospitalizovaných osob v těžkém stavu a/nebo s vysoce intensivní péčí. Ukazuje nebezpečí přetížení zdravotnického systému</p>
-        <p>Zdroj: <a href="https://onemocneni-aktualne.mzcr.cz/covid-19/prehled-hospitalizaci">Ministerstvo zdravotnictví</a>
-      </details>
+      <aside>
+        <h2>Hospitalizace, těžký stav</h2>
+        <details open>
+          <summary>Podrobnosti</summary>
+          <p>Počet hospitalizovaných osob v těžkém stavu a/nebo s vysoce intensivní péčí. Ukazuje nebezpečí přetížení zdravotnického systému</p>
+          <p>Zdroj: <a href="https://onemocneni-aktualne.mzcr.cz/covid-19/prehled-hospitalizaci">Ministerstvo zdravotnictví</a></p>
+        </details>
+      </aside>
       <figure id="critical-cases-chart" class="ct-chart ct-octave"></figure>
     </section>
 
     <section>
-      <h2>Přísrůstek případů v okresech</h2>
-      <details>
-        <summary>Podrobnosti</summary>
-        <p>
-          Denní přírůstek počtu nakažených v jednotlivých okresech jak je hlásí z KHS. Ukazuje nakolik jsou nové případy lokalizované
-          <div>
-            <span style="width:5em;color:black;display:inline-block;background:linear-gradient(90deg, rgb(255,255,255), rgba(255,0,0))">0</span><span style="background-color:red;color:white;display:inline-block ">10</span><span style="width:5em;color:white;text-align:right;display:inline-block;background:linear-gradient(90deg, rgb(255,0,0), rgba(0,0,0))">150+</span>
-          </div>
-        </p>
-        <p>
-          Zdroj: <a href="https://docs.google.com/spreadsheets/d/1FFEDhS6VMWon_AWkJrf8j3XxjZ4J6UI1B2lO3IW-EEc/edit#gid=1011737151">COVID-19 po okresech z KHS</a>.
-          Přehled je aktualizován ručně, nemusí být vždy přesný.
-        </p>
-      </details>
+      <aside>
+        <h2>Přísrůstek případů v okresech</h2>
+        <details open>
+          <summary>Podrobnosti</summary>
+          <p>
+            Denní přírůstek počtu nakažených v jednotlivých okresech jak je hlásí z KHS. Ukazuje nakolik jsou nové případy lokalizované
+            <div>
+              <span style="width:5em;color:black;display:inline-block;background:linear-gradient(90deg, rgb(255,255,255), rgba(255,0,0))">0</span><span style="background-color:red;color:white;display:inline-block ">10</span><span style="width:5em;color:white;text-align:right;display:inline-block;background:linear-gradient(90deg, rgb(255,0,0), rgba(0,0,0))">150+</span>
+            </div>
+          </p>
+          <p>
+            Zdroj: <a href="https://docs.google.com/spreadsheets/d/1FFEDhS6VMWon_AWkJrf8j3XxjZ4J6UI1B2lO3IW-EEc/edit#gid=1011737151">COVID-19 po okresech z KHS</a>.
+            Přehled je aktualizován ručně, nemusí být vždy přesný.
+          </p>
+        </details>
+      </aside>
       <figure id="county-chart" class="ct-chart ct-square"></figure>
     </section>
 
     <section>
-      <h2>Podíl koronavirového obsahu na zpravodajských serverech</h2>
-      <details>
-        <summary>Podrobnosti</summary>
-        <p>
-          Podíl článků publikovaných v daný den zařazených v koronavirových sekcích k celkovému počtu čzpravodajských článků ten den. Ukazuje míru mediální masáže. Denní hodnoty (slabě) a 7-denní klouzavý průměr (silně).
-          <div>
-            <ul class="news-legend">
-              <li class="novinky">novinky.cz</li>
-              <li class="idnes">idnes.cz</li>
-            </ul>
-          </div>
-        </p>
-        <p>
-          Zdroje: <a href="https://cs.wikipedia.org/wiki/M%C3%A9dia_v_%C4%8Cesku#Internetov%C3%A9_port%C3%A1ly">Wikipedie: nejčtenější zpravodajské servery</a>, <a href="https://zpravy.idnes.cz">idnes.cz</a>, <a href="https://novinky.cz">novinky.cz</a>
-        </p>
-      </details>
+      <aside>
+        <h2>Podíl koronavirového obsahu na zpravodajských serverech</h2>
+        <details open>
+          <summary>Podrobnosti</summary>
+          <p>
+            Podíl článků publikovaných v daný den zařazených v koronavirových sekcích k celkovému počtu čzpravodajských článků ten den. Ukazuje míru mediální masáže. Denní hodnoty (slabě) a 7-denní klouzavý průměr (silně).
+            <div>
+              <ul class="news-legend">
+                <li class="novinky">novinky.cz</li>
+                <li class="idnes">idnes.cz</li>
+              </ul>
+            </div>
+          </p>
+          <p>
+            Zdroje: <a href="https://cs.wikipedia.org/wiki/M%C3%A9dia_v_%C4%8Cesku#Internetov%C3%A9_port%C3%A1ly">Wikipedie: nejčtenější zpravodajské servery</a>, <a href="https://zpravy.idnes.cz">idnes.cz</a>, <a href="https://novinky.cz">novinky.cz</a>
+          </p>
+        </details>
+      </aside>
       <figure id="news-coverage-chart" class="ct-chart ct-golden-section"></figure>
     </section>
 
     <section>
-      <h2>Odhad reprodukčního čísla</h2>
-      <details>
-        <summary>Podrobnosti</summary>
-        <p>
-          Odhad <a href="https://cs.wikipedia.org/wiki/Index_naka%C5%BElivosti">reprodukčního čísla</a>. Ukazuje rychlost šíření nákazy v populaci (kolik lidí nakazí jeden nemocný člověk).
-        </p>
-        <p>
-          Zdroj: <a href="https://docs.google.com/spreadsheets/d/1cCCECunGrLmcxp5RwTRvHPLPi2Uh2J8b4NIoyFDcu7c/edit#gid=1683234482">Czech R<sub>0</sub> estimate</a>, od <a href="https://github.com/netique">Jana Netíka</a>(?) / <a href="https://covid19cz.cz/">covid19cz</a>
-        </p>
-      </details>
+      <aside>
+        <h2>Odhad reprodukčního čísla</h2>
+        <details open>
+          <summary>Podrobnosti</summary>
+          <p>
+            Odhad <a href="https://cs.wikipedia.org/wiki/Index_naka%C5%BElivosti">reprodukčního čísla</a>. Ukazuje rychlost šíření nákazy v populaci (kolik lidí nakazí jeden nemocný člověk).
+          </p>
+          <p>
+            Zdroj: <a href="https://docs.google.com/spreadsheets/d/1cCCECunGrLmcxp5RwTRvHPLPi2Uh2J8b4NIoyFDcu7c/edit#gid=1683234482">Czech R<sub>0</sub> estimate</a>, od <a href="https://github.com/netique">Jana Netíka</a>(?) / <a href="https://covid19cz.cz/">covid19cz</a>
+          </p>
+        </details>
+      </aside>
       <figure id="r0-chart" class="ct-chart ct-double-octave"></figure>
     </section>
 
   </main>
+
+  <footer>
+    Tom Kmec, 2020. Sources on <a href="https://github.com/tomkmec/yacd">GitHub</a>.
+  </footer>
   <!-- Add your site or application content here -->
   <script src="public/js/vendor/modernizr-3.11.2.min.js"></script>
   <script src="public/js/plugins.js"></script>
@@ -196,6 +238,26 @@
       const averaged = justY.map((x,i) => justY.slice(Math.max(0, i-span+1), i+1).reduce((a,b) => a + b, 0) / Math.min(i+1, span))
       return data.map((a,i) => {return {x: a.x, y: averaged[i]}})
     }
+
+    const bigScreen = matchMedia("(min-width:1200px)");
+    function toggleDetails() {
+      if (bigScreen.matches) {
+        document.querySelectorAll('details').forEach(node => {
+          node.setAttribute('x-open', node.hasAttribute('open'));
+          node.setAttribute('open', '')
+        })
+      } else {
+        document.querySelectorAll('details').forEach(node => {
+          if (node.getAttribute('x-open') == 'true') {
+            node.setAttribute('open', '')
+          } else {
+            node.removeAttribute('open', '')
+          }
+        })
+      }
+    }
+    toggleDetails();
+    bigScreen.addListener(toggleDetails);
 
     fetch('datasets/news.json').then(response => response.json()).then(data => {
       const datasets = Object.keys(data.news).map(source => { 
@@ -271,12 +333,14 @@
       for (key in data.estimates) {
         valuesSlice[key] = data.estimates[key].slice(data.dates.indexOf("2020-03-20"));
       }
-      const chartData = {
-        labels: datesSlice,
-        series: ['high','low', 'r0'].map(set => {return {
+      const series = ['high','low', 'r0'].map(set => {return {
           name: set,
           data: valuesSlice[set].map((n,i) => {return {x: dayjs(datesSlice[i]).toDate(), y: n }})
-        }})
+        }});
+      series.push({name: 'base', data:datesSlice.map(d=>{return{x: dayjs(d).toDate(), y: 1}})});
+      const chartData = {
+        labels: datesSlice,
+        series: series
       }
       const options = {
         low:0, high:2.5,
@@ -288,15 +352,10 @@
           }
         },
         series: {
-          high: {
-            showLine: false, showPoint:false, showArea:true
-          },
-          low: {
-            showLine: false, showPoint:false, showArea:true
-          },
-          r0: {
-            showPoint:false
-          }
+          high: { showLine: false, showPoint:false, showArea:true },
+          low: { showLine: false, showPoint:false, showArea:true },
+          r0: { showPoint:false }, 
+          base: { showPoint:false }
         },
         chartPadding: 0
       }

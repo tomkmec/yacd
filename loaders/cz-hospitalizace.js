@@ -1,7 +1,7 @@
 /*
  * Loader for CZ hospitalizations data.
  * Sources:
- * -https://onemocneni-aktualne.mzcr.cz/covid-19
+ * - https://onemocneni-aktualne.mzcr.cz/covid-19
  */
 
 const { writeFileSync } = require('fs');
