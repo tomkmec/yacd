@@ -2,7 +2,7 @@ const config = {
   googleApiKey: '',
 
   krajeSpreadsheetId: '1FFEDhS6VMWon_AWkJrf8j3XxjZ4J6UI1B2lO3IW-EEc',
-  krajeSpreadsheetWorksheetIndex: 1,
+  krajeSpreadsheetWorksheetIndex: 2,
   krajeOutputFile: '../datasets/okresy.json',
 
   r0SpreadsheetId: '1cCCECunGrLmcxp5RwTRvHPLPi2Uh2J8b4NIoyFDcu7c',
