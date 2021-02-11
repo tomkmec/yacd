@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "node-expat": "^2.3.18"
+  }
+}
