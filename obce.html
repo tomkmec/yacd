@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - buffergeometry - particles</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<script src="//cdnjs.cloudflare.com/ajax/libs/dayjs/1.10.4/dayjs.min.js"></script>
+	</head>
+	<body>
+
+		<div id="container"></div>
+
+		<script type="module">
+      let coords, data;
+
+			import * as THREE from 'https://unpkg.com/three@0.125.2/build/three.module.js';
+      import { OrbitControls } from 'https://unpkg.com/three@0.125.2/examples/jsm/controls/OrbitControls.js';
+      
+			let container;
+
+			let camera, scene, renderer;
+
+			let points;
+
+      fetch('./datasets/souradnice-obci/okresy.json')
+        .then(r => r.json())
+        .then(_ => coords = _)
+        .then(() => fetch('./datasets/okresy2.json'))
+        .then(r => r.json())
+        .then(_ => data = _)
+        .then(() => {
+          init();
+    			animate();
+        })
+
+				function fitsIn (point, vs) {
+					// ray-casting algorithm based on
+					// http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+					
+					var x = point[0], y = point[1];
+					
+					var inside = false;
+					for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+							var xi = vs[i][0], yi = vs[i][1];
+							var xj = vs[j][0], yj = vs[j][1];
+							
+							var intersect = ((yi > y) != (yj > y))
+									&& (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+							if (intersect) inside = !inside;
+					}
+					
+					return inside;
+			};
+
+			function init() {
+
+				container = document.getElementById( 'container' );
+
+				//
+
+				camera = new THREE.PerspectiveCamera( 27, window.innerWidth / window.innerHeight, 5, 3500 );
+				camera.position.z = 2021;
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0x050505 );
+				scene.fog = new THREE.Fog( 0x050505, 2000, 3500 );
+
+				//
+
+				const particles = 500000;
+
+				const geometry = new THREE.BufferGeometry();
+
+				const positions = [];
+				const colors = [];
+
+				const color = new THREE.Color();
+  
+        for (let date in data) {
+					for (let okres in data[date]) {
+						let count = data[date][okres];
+						if (coords[okres]) {
+							let c = coords[okres].coords;
+							// const za = date.split('-')
+							// const z = parseInt(za[2])+31*parseInt(za[1])+12*31*(parseInt(za[0])-2020);
+							const z = dayjs(date).diff(dayjs('2020-03-01'), 'd')
+
+							const dist = Math.abs(z-445)
+							for (let i=0; i<count; i++) {
+								let x,y
+								do {
+									x = c.x[0]+Math.random()*(c.x[1]-c.x[0])
+									y = c.y[0]+Math.random()*(c.y[1]-c.y[0])
+								} while (!fitsIn([x, y], c.points) || (coords[okres].interiorCoords && fitsIn([x, y], coords[okres].interiorCoords.points)))
+
+								positions.push( 150*(y-15.6), 250*(x-49.7), 2*(z-250)+Math.random()*10);
+
+								// const vx = ( x / n ) + 0.5;
+								// const vy = ( y / n ) + 0.5;
+								// const vz = ( z / n ) + 0.5;
+
+								let hilight =  Math.min(Math.max(0, 1-dist/10), 1)
+								let fade = 1 //Math.min(Math.max(0.1, 1-dist/50), 0.9)
+								color.setRGB(fade, hilight, hilight );
+								// color.setRGB(1, 0, 0 );
+								colors.push( color.r, color.g, color.b );
+
+							}
+						}
+					}
+        }
+
+				geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+				geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+
+				geometry.computeBoundingSphere();
+
+				//
+
+				// const material = new THREE.PointsMaterial( {size:32, transparent:true, vertexColors: true, alphaMap: new THREE.TextureLoader().load( "circle.png" ),  blending: THREE.AdditiveBlending});
+				const material = new THREE.PointsMaterial( {size:4, transparent:true, vertexColors: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthFunc: THREE.AlwaysDepth,  alphaMap: new THREE.TextureLoader().load( "circle.png" )});
+
+
+				points = new THREE.Points( geometry, material );
+				scene.add( points );
+
+				//
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				container.appendChild( renderer.domElement );
+
+        const controls = new OrbitControls( camera, renderer.domElement );
+				controls.listenToKeyEvents( window ); // optional
+				//
+
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			//
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				render();
+
+      }
+
+			function render() {
+
+				const time = Date.now() * 0.001;
+
+				// points.rotation.x = time * 0.25;
+				// points.rotation.y = time * 0.5;
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>

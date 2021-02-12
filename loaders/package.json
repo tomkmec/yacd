@@ -1,7 +1,8 @@
 {
-  "name": "COVID-dashboard-data-loaders",
+  "name": "covid-dashboard-data-loaders",
   "dependencies": {
     "cheerio": "^1.0.0-rc.3",
+    "csv-parser": "^3.0.0",
     "google-spreadsheet": "^3.0.13",
     "node-fetch": "^2.6.1"
   }
