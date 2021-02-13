@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<script src="//cdnjs.cloudflare.com/ajax/libs/dayjs/1.10.4/dayjs.min.js"></script>
 	</head>
-	<body>
+	<body style="margin:0; padding:0">
 
 		<div id="container"></div>
 
@@ -67,22 +67,20 @@
 
 				//
 
-				const particles = 500000;
-
 				const geometry = new THREE.BufferGeometry();
-
 				const positions = [];
-				const colors = [];
+				// const colors = [];
 
-				const color = new THREE.Color();
-  
+				// const color = new THREE.Color();
+
+				const geometry2 = new THREE.BufferGeometry();
+				const positions2 = [];
+
         for (let date in data) {
 					for (let okres in data[date]) {
 						let count = data[date][okres];
 						if (coords[okres]) {
 							let c = coords[okres].coords;
-							// const za = date.split('-')
-							// const z = parseInt(za[2])+31*parseInt(za[1])+12*31*(parseInt(za[0])-2020);
 							const z = dayjs(date).diff(dayjs('2020-03-01'), 'd')
 
 							const dist = Math.abs(z-445)
@@ -95,15 +93,12 @@
 
 								positions.push( 150*(y-15.6), 250*(x-49.7), 2*(z-250)+Math.random()*10);
 
-								// const vx = ( x / n ) + 0.5;
-								// const vy = ( y / n ) + 0.5;
-								// const vz = ( z / n ) + 0.5;
+								if (date=='2021-02-06') {
+									positions2.push( 150*(y-15.6), 250*(x-49.7), 2*(z-250)/*+Math.random()*10*/);
+								}
 
-								let hilight =  Math.min(Math.max(0, 1-dist/10), 1)
-								let fade = 1 //Math.min(Math.max(0.1, 1-dist/50), 0.9)
-								color.setRGB(fade, hilight, hilight );
-								// color.setRGB(1, 0, 0 );
-								colors.push( color.r, color.g, color.b );
+								// color.setRGB(1,0,0);
+								// colors.push( color.r, color.g, color.b );
 
 							}
 						}
@@ -111,20 +106,21 @@
         }
 
 				geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
-				geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+				// geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
 
 				geometry.computeBoundingSphere();
 
-				//
+				geometry2.setAttribute( 'position', new THREE.Float32BufferAttribute( positions2, 3 ) );
+				geometry2.computeBoundingSphere();
 
-				// const material = new THREE.PointsMaterial( {size:32, transparent:true, vertexColors: true, alphaMap: new THREE.TextureLoader().load( "circle.png" ),  blending: THREE.AdditiveBlending});
-				const material = new THREE.PointsMaterial( {size:4, transparent:true, vertexColors: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthFunc: THREE.AlwaysDepth,  alphaMap: new THREE.TextureLoader().load( "circle.png" )});
 
+				const material = new THREE.PointsMaterial( {size:4, transparent:true, vertexColors: false, color: 0xff0000, opacity: 0.2, blending: THREE.AdditiveBlending, depthFunc: THREE.AlwaysDepth,  alphaMap: new THREE.TextureLoader().load( "circle.png" )});
+				const material2 = new THREE.PointsMaterial( {size:12, transparent:true, vertexColors: false, color: 0xffffff, opacity: 0.33, blending: THREE.AdditiveBlending, depthFunc: THREE.AlwaysDepth,  alphaMap: new THREE.TextureLoader().load( "circle.png" )});
 
 				points = new THREE.Points( geometry, material );
 				scene.add( points );
 
-				//
+				scene.add(  new THREE.Points( geometry2, material2 ) );
 
 				renderer = new THREE.WebGLRenderer();
 				renderer.setPixelRatio( window.devicePixelRatio );
@@ -133,8 +129,7 @@
 				container.appendChild( renderer.domElement );
 
         const controls = new OrbitControls( camera, renderer.domElement );
-				controls.listenToKeyEvents( window ); // optional
-				//
+				// controls.listenToKeyEvents( window ); // optional
 
 				window.addEventListener( 'resize', onWindowResize );
 
@@ -160,11 +155,6 @@
       }
 
 			function render() {
-
-				const time = Date.now() * 0.001;
-
-				// points.rotation.x = time * 0.25;
-				// points.rotation.y = time * 0.5;
 
 				renderer.render( scene, camera );
 
