@@ -49,7 +49,10 @@
     h2 {
       margin: 1em 0 0 0;
     }
-    @media (max-width:1199px) {
+    @media (max-width:600px) {
+      #container3js {
+        max-height: 400px;
+      }
     }
 
 
@@ -75,6 +78,10 @@
         max-width: 800px;
         width: 800px;
       }
+      figure .placeholder {
+        max-width: 800px;
+      }
+
     }
 
     .ct-line.thin {
@@ -145,6 +152,39 @@
       background-color: #E41F1F;
     }
 
+    #container3js {
+      height: 600px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    #container3js .placeholder {
+      font-family: Infected;
+      width: 100%;
+      font-size: 200px;
+      position: absolute;
+      text-align: center;
+
+      -webkit-animation: pulse 2s infinite ease-in-out;
+      -o-animation: pulse 2s infinite ease-in-out;
+      -ms-animation: pulse 2s infinite ease-in-out; 
+      -moz-animation: pulse 2s infinite ease-in-out; 
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @-webkit-keyframes pulse {
+      0% { -webkit-transform: scale(0.9); opacity: 0.3; }
+      50% { -webkit-transform: scale(1); opacity: 1; }
+      100% { -webkit-transform: scale(0.9); opacity: 0.3; }
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(0.9); opacity: 0.7; }
+        50% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(0.9); opacity: 0.7; }
+    }
+
   </style>
 </head>
 
@@ -170,18 +210,16 @@
         <details open>
           <summary>Podrobnosti</summary>
           <p>
-            Denní přírůstek počtu nakažených v jednotlivých okresech jak je hlásí z KHS. Ukazuje nakolik jsou nové případy lokalizované
-            <div>
-              <span style="width:5em;color:black;display:inline-block;background:linear-gradient(90deg, rgb(255,255,255), rgba(255,0,0))">0</span><span style="background-color:red;color:white;display:inline-block ">10</span><span style="width:5em;color:white;text-align:right;display:inline-block;background:linear-gradient(90deg, rgb(255,0,0), rgba(0,0,0))">150+</span>
-            </div>
+            TBD
           </p>
           <p>
-            Zdroj: <a href="https://docs.google.com/spreadsheets/d/1FFEDhS6VMWon_AWkJrf8j3XxjZ4J6UI1B2lO3IW-EEc/edit#gid=1011737151">COVID-19 po okresech z KHS</a>.
-            Přehled je aktualizován ručně, nemusí být vždy přesný.
+            Zdroj: TBD
           </p>
         </details>
       </aside>
-      <figure id="county-chart" class="ct-chart ct-square"></figure>
+      <figure id="container3js">
+        <span class="placeholder">O</span>
+      </figure>
     </section>
 
     <section>
@@ -361,72 +399,165 @@
       }
       new Chartist.Line('#r0-chart', chartData, options);  
     });
+  </script>
 
-    fetch('datasets/okresy.json').then(response => response.json()).then(data => {
-      const counties = {};
-      let max = 0;
-      for (let kraj in data.counts) {
-        for (let okres in data.counts[kraj]) {
-          counties[okres.replace('nad','n.')] = data.counts[kraj][okres].map((x, i, a) => {
-            const change = x - (i==0? 0 : a[i-1]);
-            if (change > max) max = change;
-            return change;
-          });
-        }
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.125.2/build/three.module.js';
+    import { OrbitControls } from 'https://unpkg.com/three@0.125.2/examples/jsm/controls/OrbitControls.js';
+
+    let container = document.getElementById( 'container3js' );
+    let camera, scene, renderer;
+
+    function fitsIn (point, vs) {
+      // ray-casting algorithm based on
+      // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+      
+      var x = point[0], y = point[1];
+      
+      var inside = false;
+      for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+          var xi = vs[i][0], yi = vs[i][1];
+          var xj = vs[j][0], yj = vs[j][1];
+          
+          var intersect = ((yi > y) != (yj > y))
+              && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+          if (intersect) inside = !inside;
       }
+      
+      return inside;
+    };
 
-      const color = (change) => {
-        const threshold = 10;
-        if (change <= threshold) {
-          const x = Math.floor(255*(1-(Math.max(change,0)/threshold)));
-          return '255,'+ x + ',' + x;
-        } else {
-          const x = Math.floor(255*(1-(Math.min(change,150)-threshold)/(150-threshold)));
-          return x+',0,0';
+    function prepareBuffers(data, coodrinates) {
+      let datePositions = {};
+      let maxDate = '2020-03-01';
+      for (let date in data) {
+        if (dayjs(date).isAfter(dayjs(maxDate))) {
+          maxDate = date;
         }
-      }
+        datePositions[date] = [];
+        for (let okres in data[date]) {
+          let count = data[date][okres];
+          if (coodrinates[okres]) {
+            let c = coodrinates[okres].coords;
+            const z = dayjs(date).diff(dayjs('2020-03-01'), 'd')
 
-      const keys = Object.keys(counties);
-      new Chartist.Bar('#county-chart', {
-        labels: keys,
-        series: data.dates.map(date => {
-          return Object.values(counties).map(count => 24*3600*1000)
-        })
-      }, {
-        horizontalBars: true,
-        stackBars: true,
-        // reverseData: true,
-        axisX: {
-          labelInterpolationFnc: function(value) {
-            return dayjs(value).add(dayjs(data.dates[0])).format('MMM D');
-          },
-          //high: 24*3600*1000*data.dates.length,
-          type: Chartist.FixedScaleAxis,
-          ticks: data.dates.filter(d => d.lastIndexOf('-01') == 7).map(d => dayjs(d).subtract(dayjs(data.dates[0])).toDate().getTime()),
-        },
-        axisY: {
-          offset:75
-        }
-      }).on('draw', function(data) {
-        if(data.type === 'bar') {
-          let value = 0;
-          try {
-            value = counties[keys[data.index]][data.seriesIndex]
-          } catch (e) {
-            console.log(data.index, data.seriesIndex, keys[data.seriesIndex], counties[keys[data.seriesIndex]])
+            const dist = Math.abs(z-445)
+            for (let i=0; i<count; i++) {
+              let x,y
+              do {
+                x = c.x[0]+Math.random()*(c.x[1]-c.x[0])
+                y = c.y[0]+Math.random()*(c.y[1]-c.y[0])
+              } while (!fitsIn([x, y], c.points) || (coodrinates[okres].interiorCoords && fitsIn([x, y], coodrinates[okres].interiorCoords.points)))
+
+              const point = [150*(y-15.6), 250*(x-49.7), 2*(z-250)]
+
+              datePositions[date].push(...point)
+            }
           }
-          data.element.attr({
-            style: 'stroke:rgb('+color(value)+'); stroke-width:5px'
-          });
         }
-      }).on('created', function(data) {
-        // move the grids to the end of the SVG to overlay the non-transparent area
-        const svg = document.querySelector('#r0-chart svg');
-        const grids = svg.querySelector('.ct-grids');
-        grids.remove();
-        svg.appendChild(grids);
+      }
+
+      return Object.assign(...Object.keys(datePositions).map(k => ({[k]: new THREE.Float32BufferAttribute( datePositions[k], 3 ) })))
+    }
+
+    function init(data, coodrinates) {
+      container = document.getElementById( 'container3js' );
+
+      camera = new THREE.PerspectiveCamera( 27, container.offsetWidth / container.offsetHeight, 5, 7000 );
+      camera.position.z = 2021;
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color( 0xfafafa );
+      scene.fog = new THREE.Fog( 0xfafafa, 6000, 7000 );
+
+      const material1 = new THREE.PointsMaterial( {
+        size:4, 
+        transparent:true, 
+        vertexColors: false, 
+        color: 0xff0000, 
+        opacity: 0.2, 
+        blending: THREE.NormalBlending, 
+        depthFunc: THREE.AlwaysDepth,  
+        alphaMap: new THREE.TextureLoader().load( "circle.png" )
       });
-    });
+      const material2 = new THREE.PointsMaterial( {
+        size:12, 
+        transparent:true, 
+        vertexColors: false,
+        color: 0x000000, 
+        opacity: 0.33, 
+        blending: THREE.NormalBlending, 
+        depthFunc: THREE.AlwaysDepth,  
+        alphaMap: new THREE.TextureLoader().load( "circle.png" )
+      });
+
+      const buffersByDate = prepareBuffers(data, coodrinates)
+
+      // TODO
+      // let r = document.getElementById('myRange')
+      // let max = dayjs(maxDate).diff(dayjs('2020-03-01'), 'd')
+      // r.setAttribute('max', max)
+      // r.setAttribute('value', max)
+      // r.oninput = () => {
+      //   let theWeek = [];
+      //   for (let i=0; i<7; i++) {
+      //     let date = dayjs('2020-03-01').add(r.value-i,'d').format('YYYY-MM-DD')
+      //     theWeek = theWeek.concat(datePositions[date] || [])
+      //     document.getElementById('outer').attributeStyleMap.set('left', Math.round(100*r.value/max)+'%')
+      //     document.getElementById('inner').innerHTML=dayjs('2020-03-01').add(r.value-i,'d').format('D.M.YYYY')
+      //   }
+      //   geometry2.setAttribute( 'position', new THREE.Float32BufferAttribute( theWeek, 3 ) );				
+      //   geometry2.computeBoundingSphere();
+      // }
+
+      for (let date in buffersByDate) {
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute( 'position', buffersByDate[date] );
+        geometry.computeBoundingSphere();
+
+        scene.add( new THREE.Points( geometry, material1 ) );
+
+        //TODO
+        // let highlightPoints = new THREE.Points( geometry, material2 )
+        // highlightPoints.name = date;
+        // scene.add( highlightPoints );
+      }
+
+      renderer = new THREE.WebGLRenderer();
+      renderer.setPixelRatio( window.devicePixelRatio );
+      renderer.setSize( container.offsetWidth, container.offsetHeight );
+
+      container.appendChild( renderer.domElement );
+
+      const controls = new OrbitControls( camera, renderer.domElement );
+
+      window.addEventListener( 'resize', onWindowResize );
+    }
+
+    
+    function onWindowResize() {
+      camera.aspect = container.offsetWidth / container.offsetHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize( container.offsetWidth, container.offsetHeight );
+    }
+
+    function animate() {
+      requestAnimationFrame( animate );
+      render();
+    }
+
+    function render() {
+      renderer.render( scene, camera );
+    }
+
+    Promise.all([
+      fetch('./datasets/souradnice-obci/okresy.json').then(r => r.json()),
+      fetch('./datasets/okresy2.json').then(r => r.json())
+    ]).then(([coords, data]) => {
+      init(data, coords)
+      document.getElementsByClassName('placeholder')[0].remove()
+      animate()
+    })
 
   </script>
 
