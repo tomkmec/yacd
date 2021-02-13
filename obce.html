@@ -5,10 +5,64 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<script src="//cdnjs.cloudflare.com/ajax/libs/dayjs/1.10.4/dayjs.min.js"></script>
+		<style>
+			.slidecontainer {
+				width: 100%; /* Width of the outside container */
+			}
+
+			/* The slider itself */
+			.slider {
+				-webkit-appearance: none;  /* Override default CSS styles */
+				appearance: none;
+				width: 100%; /* Full-width */
+				height: 25px; /* Specified height */
+				background: #d3d3d3; /* Grey background */
+				outline: none; /* Remove outline */
+				opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+				-webkit-transition: .2s; /* 0.2 seconds transition on hover */
+				transition: opacity .2s;
+			}
+
+			/* Mouse-over effects */
+			.slider:hover {
+				opacity: 1; /* Fully shown on mouse-over */
+			}
+
+			/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+			.slider::-webkit-slider-thumb {
+				-webkit-appearance: none; /* Override default look */
+				appearance: none;
+				width: 25px; /* Set a specific slider handle width */
+				height: 25px; /* Slider handle height */
+				background: #4CAF50; /* Green background */
+				cursor: pointer; /* Cursor on hover */
+			}
+
+			.slider::-moz-range-thumb {
+				width: 25px; /* Set a specific slider handle width */
+				height: 25px; /* Slider handle height */
+				background: #4CAF50; /* Green background */
+				cursor: pointer; /* Cursor on hover */
+			}
+
+			#controls {
+				background-color: transparent;
+				position: fixed;
+				bottom: 16px;
+				width: 100%;
+				padding: 16px;
+			}
+		</style>
 	</head>
 	<body style="margin:0; padding:0">
 
 		<div id="container"></div>
+
+		<div id="controls">
+			<div class="slidecontainer">
+				<input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+			</div>
+		</div>
 
 		<script type="module">
       let coords, data;
@@ -21,6 +75,9 @@
 			let camera, scene, renderer;
 
 			let points;
+
+			let geometry2 = new THREE.BufferGeometry();
+			let datePositions = {};
 
       fetch('./datasets/souradnice-obci/okresy.json')
         .then(r => r.json())
@@ -63,7 +120,7 @@
 
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0x050505 );
-				scene.fog = new THREE.Fog( 0x050505, 2000, 3500 );
+				// scene.fog = new THREE.Fog( 0x050505, 2000, 3500 );
 
 				//
 
@@ -73,10 +130,14 @@
 
 				// const color = new THREE.Color();
 
-				const geometry2 = new THREE.BufferGeometry();
 				const positions2 = [];
 
+				let maxDate = '2020-03-01';
         for (let date in data) {
+					if (dayjs(date).isAfter(dayjs(maxDate))) {
+						maxDate = date;
+					}
+					datePositions[date] = [];
 					for (let okres in data[date]) {
 						let count = data[date][okres];
 						if (coords[okres]) {
@@ -91,19 +152,28 @@
 									y = c.y[0]+Math.random()*(c.y[1]-c.y[0])
 								} while (!fitsIn([x, y], c.points) || (coords[okres].interiorCoords && fitsIn([x, y], coords[okres].interiorCoords.points)))
 
-								positions.push( 150*(y-15.6), 250*(x-49.7), 2*(z-250)+Math.random()*10);
+								const point = [150*(y-15.6), 250*(x-49.7), 2*(z-250)]
 
-								if (date=='2021-02-06') {
-									positions2.push( 150*(y-15.6), 250*(x-49.7), 2*(z-250)/*+Math.random()*10*/);
-								}
-
-								// color.setRGB(1,0,0);
-								// colors.push( color.r, color.g, color.b );
-
+								positions.push( ...point );
+								datePositions[date].push(...point)
 							}
 						}
 					}
         }
+
+				let r = document.getElementById('myRange')
+				let max = dayjs(maxDate).diff(dayjs('2020-03-01'), 'd')
+				r.setAttribute('max', max)
+				r.setAttribute('value', max)
+				r.oninput = () => {
+					let theWeek = [];
+					for (let i=0; i<7; i++) {
+						let date = dayjs('2020-03-01').add(r.value-i,'d').format('YYYY-MM-DD')
+						theWeek = theWeek.concat(datePositions[date] || [])
+					}
+					geometry2.setAttribute( 'position', new THREE.Float32BufferAttribute( theWeek, 3 ) );				
+					geometry2.computeBoundingSphere();
+				}
 
 				geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
 				// geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
