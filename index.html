@@ -173,6 +173,10 @@
       animation: pulse 2s infinite ease-in-out;
     }
 
+    #vizRange {
+      width:100%
+    }
+
     @-webkit-keyframes pulse {
       0% { -webkit-transform: scale(0.9); opacity: 0.3; }
       50% { -webkit-transform: scale(1); opacity: 1; }
@@ -202,24 +206,6 @@
         </details>
       </aside>
       <figure id="critical-cases-chart" class="ct-chart ct-octave"></figure>
-    </section>
-
-    <section>
-      <aside>
-        <h2>Přírůstek případů v okresech</h2>
-        <details open>
-          <summary>Podrobnosti</summary>
-          <p>
-            TBD
-          </p>
-          <p>
-            Zdroj: TBD
-          </p>
-        </details>
-      </aside>
-      <figure id="container3js">
-        <span class="placeholder">O</span>
-      </figure>
     </section>
 
     <section>
@@ -258,6 +244,30 @@
         </details>
       </aside>
       <figure id="r0-chart" class="ct-chart ct-double-octave"></figure>
+    </section>
+    
+    <section>
+      <aside>
+        <h2>Všechny odhalené případy nákazy</h2>
+        <details open>
+          <summary>Podrobnosti</summary>
+          <p>
+            Tato vizualizace je interaktivní. Použijte myš nebo dotyk.
+            SLider pod vizualizací umožňuje zvýraznit případy hlášené v rozmezí -7 dnů od zobrazeného data.
+          </p>
+          <p>
+            Každý případ je znázorněn jedním bodem s náodnou pozicí v rámci okresu. 
+            Ve 3. rozměru je čas - prípady nahlášené ve stejném dni jsou v jedné rovině.
+          </p>
+          <p>
+            Zdroj: TBD
+          </p>
+        </details>
+      </aside>
+      <figure id="container3js">
+        <span class="placeholder">O</span>
+        <input id="vizRange" type="range" value="0" />
+      </figure>
     </section>
 
   </main>
@@ -407,6 +417,8 @@
 
     let container = document.getElementById( 'container3js' );
     let camera, scene, renderer;
+    let maxDate = '2020-03-01';
+
 
     function fitsIn (point, vs) {
       // ray-casting algorithm based on
@@ -429,7 +441,6 @@
 
     function prepareBuffers(data, coodrinates) {
       let datePositions = {};
-      let maxDate = '2020-03-01';
       for (let date in data) {
         if (dayjs(date).isAfter(dayjs(maxDate))) {
           maxDate = date;
@@ -470,6 +481,13 @@
       scene.background = new THREE.Color( 0xfafafa );
       scene.fog = new THREE.Fog( 0xfafafa, 6000, 7000 );
 
+      let groupBase = new THREE.Group()
+      let groupHL = new THREE.Group()
+      scene.add(groupBase)
+      scene.add(groupHL)
+      groupBase.renderOrder = 1;
+      groupHL.renderOrder = 2;
+
       const material1 = new THREE.PointsMaterial( {
         size:4, 
         transparent:true, 
@@ -493,34 +511,36 @@
 
       const buffersByDate = prepareBuffers(data, coodrinates)
 
-      // TODO
-      // let r = document.getElementById('myRange')
-      // let max = dayjs(maxDate).diff(dayjs('2020-03-01'), 'd')
-      // r.setAttribute('max', max)
-      // r.setAttribute('value', max)
-      // r.oninput = () => {
-      //   let theWeek = [];
-      //   for (let i=0; i<7; i++) {
-      //     let date = dayjs('2020-03-01').add(r.value-i,'d').format('YYYY-MM-DD')
-      //     theWeek = theWeek.concat(datePositions[date] || [])
-      //     document.getElementById('outer').attributeStyleMap.set('left', Math.round(100*r.value/max)+'%')
-      //     document.getElementById('inner').innerHTML=dayjs('2020-03-01').add(r.value-i,'d').format('D.M.YYYY')
-      //   }
-      //   geometry2.setAttribute( 'position', new THREE.Float32BufferAttribute( theWeek, 3 ) );				
-      //   geometry2.computeBoundingSphere();
-      // }
+      let r = document.getElementById('vizRange')
+      let max = dayjs(maxDate).diff(dayjs('2020-03-01'), 'd')
+      r.setAttribute('max', max)
+      r.setAttribute('value', max)
+      r.oninput = () => {
+        let theWeek = [];
+        groupHL.traverseVisible(o => {
+          if (o.name) o.visible = false;
+        })
+        for (let i=0; i<7; i++) {
+          let date = dayjs('2020-03-01').add(r.value-i,'d').format('YYYY-MM-DD')
+          groupHL.getObjectByName(date).visible = true
+          // theWeek = theWeek.concat(datePositions[date] || [])
+          // document.getElementById('outer').attributeStyleMap.set('left', Math.round(100*r.value/max)+'%')
+          // document.getElementById('inner').innerHTML=dayjs('2020-03-01').add(r.value-i,'d').format('D.M.YYYY')
+        }
+        // geometry2.setAttribute( 'position', new THREE.Float32BufferAttribute( theWeek, 3 ) );				
+        // geometry2.computeBoundingSphere();
+      }
 
       for (let date in buffersByDate) {
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute( 'position', buffersByDate[date] );
         geometry.computeBoundingSphere();
 
-        scene.add( new THREE.Points( geometry, material1 ) );
+        groupBase.add( new THREE.Points( geometry, material1 ) );
 
-        //TODO
-        // let highlightPoints = new THREE.Points( geometry, material2 )
-        // highlightPoints.name = date;
-        // scene.add( highlightPoints );
+        let highlightPoints = new THREE.Points( geometry, material2 )
+        highlightPoints.name = date;
+        groupHL.add( highlightPoints );
       }
 
       renderer = new THREE.WebGLRenderer();
