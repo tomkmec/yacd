@@ -59,6 +59,9 @@
 		<div id="container"></div>
 
 		<div id="controls">
+			<span style="color: white; position: relative; left: 20%;" id="outer">
+				<span style="position: relative; left: -2em;" id="inner">8.6.2020</span>
+		</span>
 			<div class="slidecontainer">
 				<input type="range" min="1" max="100" value="50" class="slider" id="myRange">
 			</div>
@@ -119,7 +122,7 @@
 				camera.position.z = 2021;
 
 				scene = new THREE.Scene();
-				scene.background = new THREE.Color( 0x050505 );
+				scene.background = new THREE.Color( 0xfafafa );
 				// scene.fog = new THREE.Fog( 0x050505, 2000, 3500 );
 
 				//
@@ -170,6 +173,8 @@
 					for (let i=0; i<7; i++) {
 						let date = dayjs('2020-03-01').add(r.value-i,'d').format('YYYY-MM-DD')
 						theWeek = theWeek.concat(datePositions[date] || [])
+						document.getElementById('outer').attributeStyleMap.set('left', Math.round(100*r.value/max)+'%')
+						document.getElementById('inner').innerHTML=dayjs('2020-03-01').add(r.value-i,'d').format('D.M.YYYY')
 					}
 					geometry2.setAttribute( 'position', new THREE.Float32BufferAttribute( theWeek, 3 ) );				
 					geometry2.computeBoundingSphere();
@@ -184,8 +189,8 @@
 				geometry2.computeBoundingSphere();
 
 
-				const material = new THREE.PointsMaterial( {size:4, transparent:true, vertexColors: false, color: 0xff0000, opacity: 0.2, blending: THREE.AdditiveBlending, depthFunc: THREE.AlwaysDepth,  alphaMap: new THREE.TextureLoader().load( "circle.png" )});
-				const material2 = new THREE.PointsMaterial( {size:12, transparent:true, vertexColors: false, color: 0xffffff, opacity: 0.33, blending: THREE.AdditiveBlending, depthFunc: THREE.AlwaysDepth,  alphaMap: new THREE.TextureLoader().load( "circle.png" )});
+				const material = new THREE.PointsMaterial( {size:4, transparent:true, vertexColors: false, color: 0xff0000, opacity: 0.2, blending: THREE.NormalBlending, depthFunc: THREE.AlwaysDepth,  alphaMap: new THREE.TextureLoader().load( "circle.png" )});
+				const material2 = new THREE.PointsMaterial( {size:12, transparent:true, vertexColors: false, color: 0x000000, opacity: 0.33, blending: THREE.NormalBlending, depthFunc: THREE.AlwaysDepth,  alphaMap: new THREE.TextureLoader().load( "circle.png" )});
 
 				points = new THREE.Points( geometry, material );
 				scene.add( points );
