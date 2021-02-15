@@ -588,7 +588,7 @@
       fetch('./datasets/okresy2.json').then(r => r.json())
     ]).then(([coords, data]) => {
       init(data, coords)
-      // document.getElementsByClassName('placeholder')[0].remove()
+      document.getElementsByClassName('placeholder')[0].remove()
       document.getElementById('vizRange').style.visibility = 'visible'
       animate()
     })
