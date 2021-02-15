@@ -157,6 +157,7 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+      margin-right: 0;
     }
 
     #container3js .placeholder {
@@ -174,7 +175,17 @@
     }
 
     #vizRange {
-      width:100%
+      width:100%;
+      visibility: hidden;
+    }
+
+    #vizDate {
+      text-align: right;
+      height: 0;
+      overflow: visible;
+      z-index: 1;
+      font-size: 175%;
+      font-weight: bold;
     }
 
     @-webkit-keyframes pulse {
@@ -253,11 +264,11 @@
           <summary>Podrobnosti</summary>
           <p>
             Tato vizualizace je interaktivní. Použijte myš nebo dotyk.
-            SLider pod vizualizací umožňuje zvýraznit případy hlášené v rozmezí -7 dnů od zobrazeného data.
+            Slider nad vizualizací umožňuje zvýraznit případy hlášené v rozmezí -7 dnů od zobrazeného data.
           </p>
           <p>
-            Každý případ je znázorněn jedním bodem s náodnou pozicí v rámci okresu. 
-            Ve 3. rozměru je čas - prípady nahlášené ve stejném dni jsou v jedné rovině.
+            Každý případ je znázorněn jedním bodem s náhodnou pozicí v rámci okresu. 
+            Ve 3. rozměru je čas - případy nahlášené ve stejném dni jsou v jedné rovině.
           </p>
           <p>
             Zdroj: TBD
@@ -265,8 +276,9 @@
         </details>
       </aside>
       <figure id="container3js">
-        <span class="placeholder">O</span>
         <input id="vizRange" type="range" value="0" />
+        <span id="vizDate"></span>
+        <span class="placeholder">O</span>
       </figure>
     </section>
 
@@ -275,7 +287,6 @@
   <footer>
     Tom Kmec, 2020. Sources on <a href="https://github.com/tomkmec/yacd">GitHub</a>.
   </footer>
-  <!-- Add your site or application content here -->
   <script src="public/js/vendor/modernizr-3.11.2.min.js"></script>
   <script src="public/js/plugins.js"></script>
   <script src="public/js/main.js"></script>
@@ -513,22 +524,20 @@
 
       let r = document.getElementById('vizRange')
       let max = dayjs(maxDate).diff(dayjs('2020-03-01'), 'd')
-      r.setAttribute('max', max)
-      r.setAttribute('value', max)
-      r.oninput = () => {
+      r.max = max
+      r.value = max
+      let updateHighlight = () => {
         let theWeek = [];
         groupHL.traverseVisible(o => {
           if (o.name) o.visible = false;
         })
+        document.getElementById('vizDate').innerHTML = dayjs('2020-03-01').add(r.value,'d').format('D.M.YYYY');
         for (let i=0; i<7; i++) {
           let date = dayjs('2020-03-01').add(r.value-i,'d').format('YYYY-MM-DD')
-          groupHL.getObjectByName(date).visible = true
-          // theWeek = theWeek.concat(datePositions[date] || [])
-          // document.getElementById('outer').attributeStyleMap.set('left', Math.round(100*r.value/max)+'%')
-          // document.getElementById('inner').innerHTML=dayjs('2020-03-01').add(r.value-i,'d').format('D.M.YYYY')
+          if (groupHL.getObjectByName(date)) {
+            groupHL.getObjectByName(date).visible=true;
+          } 
         }
-        // geometry2.setAttribute( 'position', new THREE.Float32BufferAttribute( theWeek, 3 ) );				
-        // geometry2.computeBoundingSphere();
       }
 
       for (let date in buffersByDate) {
@@ -552,6 +561,9 @@
       const controls = new OrbitControls( camera, renderer.domElement );
 
       window.addEventListener( 'resize', onWindowResize );
+      r.oninput = updateHighlight;
+      updateHighlight();
+
     }
 
     
@@ -570,12 +582,14 @@
       renderer.render( scene, camera );
     }
 
+    
     Promise.all([
       fetch('./datasets/souradnice-obci/okresy.json').then(r => r.json()),
       fetch('./datasets/okresy2.json').then(r => r.json())
     ]).then(([coords, data]) => {
       init(data, coords)
-      document.getElementsByClassName('placeholder')[0].remove()
+      // document.getElementsByClassName('placeholder')[0].remove()
+      document.getElementById('vizRange').style.visibility = 'visible'
       animate()
     })
 
