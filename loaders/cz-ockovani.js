@@ -5,6 +5,8 @@ const conf = require('./configuration.js')();
 
 const results = {};
 const ageGroups = [];
+const transpose = m => m[0].map((x,i) => m.map(x => x[i]))
+
 
 let count = 0;
 
@@ -30,16 +32,25 @@ fetch(conf.ockovaniUrl)
       const preprocessed = {
         dates: [],
         ageGroups: [],
-        dataByDate: []
+        stackedDataByGroupAndDate:[],
+        totalsByGroup:[]
       }
       preprocessed.dates = Object.keys(results).sort();
       preprocessed.ageGroups = ageGroups.sort();
-      preprocessed.dataByDate = preprocessed.dates.map(d => preprocessed.ageGroups.map(g => (results[d] || {})[g] || 0));
-      for (let i=1; i<preprocessed.dataByDate.length; i++) {
-        for (let j in preprocessed.dataByDate[i]) {
-          preprocessed.dataByDate[i][j] += preprocessed.dataByDate[i-1][j];
+      let dataByDate = preprocessed.dates.map(d => preprocessed.ageGroups.map(g => (results[d] || {})[g] || 0));
+      for (let i=1; i<dataByDate.length; i++) {
+        for (let j in dataByDate[i]) {
+          dataByDate[i][j] += dataByDate[i-1][j];
         }
       }
+      preprocessed.totalsByGroup=dataByDate[dataByDate.length-1];
+      preprocessed.stackedDataByGroupAndDate=transpose(dataByDate)
+      for (let i=1; i<preprocessed.stackedDataByGroupAndDate.length; i++) {
+        for (let j in preprocessed.stackedDataByGroupAndDate[i]) {
+          preprocessed.stackedDataByGroupAndDate[i][j] += preprocessed.stackedDataByGroupAndDate[i-1][j];
+        }
+      }
+
 
       fs.writeFileSync(conf.ockovaniOutputFile, JSON.stringify(preprocessed))
       console.log(`Done, output written to ${conf.ockovaniOutputFile}`)

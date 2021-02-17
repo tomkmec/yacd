@@ -121,6 +121,21 @@ li.idnes {
   background-color: #E41F1F;
 }
 
+#vaccination-chart .ct-series-a .ct-line { stroke: #000 !important; stroke-width: 2px; }
+#vaccination-chart .ct-series-b .ct-line { stroke: #000 !important; stroke-width: 2px;  }
+#vaccination-chart .ct-series-c .ct-line { stroke: #000 !important; stroke-width: 2px;  }
+#vaccination-chart .ct-series-d .ct-line { stroke: #000 !important; stroke-width: 2px;  }
+#vaccination-chart .ct-series-e .ct-line { stroke: #000 !important; stroke-width: 2px;  }
+#vaccination-chart .ct-series-f .ct-line { stroke: #000 !important; stroke-width: 2px;  }
+#vaccination-chart .ct-series-g .ct-line { stroke: #000 !important; stroke-width: 2px; }
+#vaccination-chart .ct-series-h .ct-line { stroke: #000 !important; stroke-width: 2px;  }
+#vaccination-chart .ct-series-i .ct-line { stroke: #000 !important; stroke-width: 2px;  }
+#vaccination-chart .ct-series-j .ct-line { stroke: #000 !important; stroke-width: 2px;  }
+#vaccination-chart .ct-series-k .ct-line { stroke: #000 !important; stroke-width: 2px;  }
+#vaccination-chart .ct-series-l .ct-line { stroke: #000 !important; stroke-width: 2px;  }
+#vaccination-chart .ct-series-m .ct-line { stroke: #000 !important; stroke-width: 2px;  }
+#vaccination-chart .ct-series-n .ct-line { stroke: #000 !important; stroke-width: 2px;  }
+
 #container3js {
   height: 600px;
   display: flex;

@@ -85,7 +85,7 @@ fetch('datasets/news.json').then(response => response.json()).then(data => {
       type: Chartist.FixedScaleAxis,
       ticks: data.dates.filter(d => d.lastIndexOf('-01') == 7).map(d => dayjs(d).toDate()),
       labelInterpolationFnc: function(value) {
-        return dayjs(value).format('MMMM D');
+        return dayjs(value).format('MMM D');
       }
     },
     axisY: {
@@ -115,7 +115,7 @@ fetch('datasets/hospitalizace.json').then(response => response.json()).then(data
       type: Chartist.FixedScaleAxis,
       ticks: datesSlice.filter(d => d.lastIndexOf('-01') == 7).map(d => dayjs(d).toDate()),
       labelInterpolationFnc: function(value) {
-        return dayjs(value).format('MMMM D');
+        return dayjs(value).format('MMM D');
       }
     },
     axisY: {
@@ -125,6 +125,33 @@ fetch('datasets/hospitalizace.json').then(response => response.json()).then(data
     chartPadding: 0
   }
   new Chartist.Line('#critical-cases-chart', chartData, options);  
+});
+
+fetch('datasets/ockovani.json').then(response => response.json()).then(data => {
+  const chartData = {
+    labels: data.dates,
+    series: data.stackedDataByGroupAndDate
+  }
+  const options = {
+    low: 0,
+    axisX: {
+      // type: Chartist.FixedScaleAxis,
+      ticks: data.dates.filter(d => d.lastIndexOf('-01') == 7).map(d => dayjs(d).toDate()),
+      labelInterpolationFnc: function(value) {
+        return dayjs(value).format('MMM D');
+      }
+    },
+    axisY: {
+      // onlyInteger: true
+      labelInterpolationFnc: function(value) {
+        return `${value/1000}k`;
+      }
+    },
+    showPoint: false,
+    showArea: true,
+    chartPadding: 0
+  }
+  new Chartist.Line('#vaccination-chart', chartData, options);  
 });
 
 fetch('datasets/r0.json').then(response => response.json()).then(data => {
@@ -148,7 +175,7 @@ fetch('datasets/r0.json').then(response => response.json()).then(data => {
       type: Chartist.FixedScaleAxis,
       ticks: datesSlice.filter(d => d.lastIndexOf('-01') == 7).map(d => dayjs(d).toDate()),
       labelInterpolationFnc: function(value) {
-        return dayjs(value).format('MMMM D');
+        return dayjs(value).format('MMM D');
       }
     },
     series: {
@@ -297,13 +324,14 @@ function render() {
   renderer.render( scene, camera );
 }
 
-
-Promise.all([
-  fetch('./datasets/souradnice-obci/okresy.json').then(r => r.json()),
-  fetch('./datasets/okresy2.json').then(r => r.json())
-]).then(([coords, data]) => {
-  init(data, coords)
-  document.getElementsByClassName('placeholder')[0].remove()
-  document.getElementById('vizRange').style.visibility = 'visible'
-  animate()
-})
+setTimeout(() => {
+  Promise.all([
+    fetch('./datasets/souradnice-obci/okresy.json').then(r => r.json()),
+    fetch('./datasets/okresy2.json').then(r => r.json())
+  ]).then(([coords, data]) => {
+    init(data, coords)
+    document.getElementsByClassName('placeholder')[0].remove()
+    document.getElementById('vizRange').style.visibility = 'visible'
+    animate()
+  })
+ }, 1000)
