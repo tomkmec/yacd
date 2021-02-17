@@ -21,186 +21,13 @@
   <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Catamaran:wght@400;700&display=swap" rel="stylesheet">
 
+  <script src="//unpkg.com/three@0.125.2/build/three.js"></script>
+  <script src="//unpkg.com/three@0.125.2/examples/js/controls/OrbitControls.js"></script>
+
   <meta name="theme-color" content="#fafafa">
 
-  <style type="text/css">
-    @font-face {
-      font-family: Infected;
-      src: url("public/covid-infected.otf") format("opentype");
-    }
-    main, footer {
-      font-family: 'Catamaran';
-      /*font-size:140%;*/
-      margin: 0 auto;
-      max-width: 800px;
-      padding: 1em;
-    }
-    footer {
-      border-top:1px dotted black;
-    }
-    h1 {
-      font-family: Infected;
-      text-align: center;
-    }
-    figure {
-      margin-left: 0;
-      margin-bottom: 0;
-    }
-    h2 {
-      margin: 1em 0 0 0;
-    }
-    @media (max-width:600px) {
-      #container3js {
-        max-height: 400px;
-      }
-    }
+  <link rel="stylesheet" href="index.css">
 
-
-    @media (min-width:1200px) {
-      summary {
-        display: none;
-      }
-      h2 {
-        margin: 0;
-      }
-      main, footer {
-        width: 1200px;
-        max-width: 1200px;
-      }
-      aside {
-        float: right;
-        width: 400px;
-        padding-left:2em;
-        margin-left:800px;
-        position:absolute;
-      }
-      figure {
-        max-width: 800px;
-        width: 800px;
-      }
-      figure .placeholder {
-        max-width: 800px;
-      }
-
-    }
-
-    .ct-line.thin {
-      stroke-width:1px;
-    }
-
-    #r0-chart .ct-area {
-      fill-opacity:1;
-    }
-
-    #r0-chart .ct-series-a .ct-area {
-      fill: #feadae;
-      /*stroke: #AAA;*/
-    }
-
-    #r0-chart .ct-series-b .ct-area {
-      fill: white;
-      /*stroke: #AAA;*/
-    }
-
-    #r0-chart .ct-series-c .ct-line {
-      stroke: #d70206;
-      stroke-width:3px;
-    }
-    #r0-chart .ct-series-d .ct-line {
-      stroke: #000;
-      stroke-width: 1px;
-    }
-
-    #news-coverage-chart .ct-series-a .ct-line, #news-coverage-chart .ct-series-c .ct-line {
-      stroke-width:1px;
-      opacity:0.3;
-    }
-    #news-coverage-chart .ct-series-a .ct-point, #news-coverage-chart .ct-series-c .ct-point {
-      stroke-width:5px;
-      opacity:0.3;
-    }
-    #news-coverage-chart .ct-series-b .ct-point, #news-coverage-chart .ct-series-d .ct-point {
-      display:none;
-    }
-
-    #news-coverage-chart .ct-series-a *, #news-coverage-chart .ct-series-b * {
-      stroke: rgb(140, 35, 38) !important;
-    }
-
-    #news-coverage-chart .ct-series-c *, #news-coverage-chart .ct-series-d * {
-      stroke: #E41F1F !important;
-    }
-
-    #county-chart span.ct-label.ct-vertical {
-      font-size:.5rem;
-    }
-
-    ul.news-legend {
-      margin-top: 0;
-    }
-    ul.news-legend li {
-      display: inline;
-      margin-right: 0 1em;
-      padding: 0 1em;
-      font-weight: bold;
-      color: white;
-    }
-    li.novinky {
-      background-color: rgb(140, 35, 38);
-    }
-    li.idnes {
-      background-color: #E41F1F;
-    }
-
-    #container3js {
-      height: 600px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      margin-right: 0;
-    }
-
-    #container3js .placeholder {
-      font-family: Infected;
-      width: 100%;
-      font-size: 200px;
-      position: absolute;
-      text-align: center;
-
-      -webkit-animation: pulse 2s infinite ease-in-out;
-      -o-animation: pulse 2s infinite ease-in-out;
-      -ms-animation: pulse 2s infinite ease-in-out; 
-      -moz-animation: pulse 2s infinite ease-in-out; 
-      animation: pulse 2s infinite ease-in-out;
-    }
-
-    #vizRange {
-      width:100%;
-      visibility: hidden;
-    }
-
-    #vizDate {
-      text-align: right;
-      height: 0;
-      overflow: visible;
-      z-index: 1;
-      font-size: 175%;
-      font-weight: bold;
-    }
-
-    @-webkit-keyframes pulse {
-      0% { -webkit-transform: scale(0.9); opacity: 0.3; }
-      50% { -webkit-transform: scale(1); opacity: 1; }
-      100% { -webkit-transform: scale(0.9); opacity: 0.3; }
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(0.9); opacity: 0.7; }
-        50% { transform: scale(1); opacity: 1; }
-        100% { transform: scale(0.9); opacity: 0.7; }
-    }
-
-  </style>
 </head>
 
 <body>
@@ -221,24 +48,14 @@
 
     <section>
       <aside>
-        <h2>Podíl koronavirového obsahu na zpravodajských serverech</h2>
+        <h2>Počet očkovaných</h2>
         <details open>
           <summary>Podrobnosti</summary>
-          <p>
-            Podíl článků publikovaných v daný den zařazených v koronavirových sekcích k celkovému počtu zpravodajských článků ten den. Ukazuje míru mediální masáže. Denní hodnoty (slabě) a 7-denní klouzavý průměr (silně).
-            <div>
-              <ul class="news-legend">
-                <li class="novinky">novinky.cz</li>
-                <li class="idnes">idnes.cz</li>
-              </ul>
-            </div>
-          </p>
-          <p>
-            Zdroje: <a href="https://cs.wikipedia.org/wiki/M%C3%A9dia_v_%C4%8Cesku#Internetov%C3%A9_port%C3%A1ly">Wikipedie: nejčtenější zpravodajské servery</a>, <a href="https://zpravy.idnes.cz">idnes.cz</a>, <a href="https://novinky.cz">novinky.cz</a>
-          </p>
+          <p>Počet dokončených očkování (2. dávek)</p>
+          <p>Zdroj: <a href="https://onemocneni-aktualne.mzcr.cz/covid-19/prehled-hospitalizaci">Ministerstvo zdravotnictví</a></p>
         </details>
       </aside>
-      <figure id="news-coverage-chart" class="ct-chart ct-golden-section"></figure>
+      <figure id="critical-cases-chart" class="ct-chart ct-octave"></figure>
     </section>
 
     <section>
@@ -282,6 +99,28 @@
       </figure>
     </section>
 
+    <section>
+      <aside>
+        <h2>Podíl koronavirového obsahu na zpravodajských serverech</h2>
+        <details open>
+          <summary>Podrobnosti</summary>
+          <p>
+            Podíl článků publikovaných v daný den zařazených v koronavirových sekcích k celkovému počtu zpravodajských článků ten den. Ukazuje míru mediální masáže. Denní hodnoty (slabě) a 7-denní klouzavý průměr (silně).
+            <div>
+              <ul class="news-legend">
+                <li class="novinky">novinky.cz</li>
+                <li class="idnes">idnes.cz</li>
+              </ul>
+            </div>
+          </p>
+          <p>
+            Zdroje: <a href="https://cs.wikipedia.org/wiki/M%C3%A9dia_v_%C4%8Cesku#Internetov%C3%A9_port%C3%A1ly">Wikipedie: nejčtenější zpravodajské servery</a>, <a href="https://zpravy.idnes.cz">idnes.cz</a>, <a href="https://novinky.cz">novinky.cz</a>
+          </p>
+        </details>
+      </aside>
+      <figure id="news-coverage-chart" class="ct-chart ct-golden-section"></figure>
+    </section>
+
   </main>
 
   <footer>
@@ -289,311 +128,8 @@
   </footer>
   <script src="public/js/vendor/modernizr-3.11.2.min.js"></script>
   <script src="public/js/plugins.js"></script>
-  <script src="public/js/main.js"></script>
 
-  <script type="text/javascript">
-    function floatingAvg(data, span) {
-      const justY = data.map(_ => _.y)
-      const averaged = justY.map((x,i) => justY.slice(Math.max(0, i-span+1), i+1).reduce((a,b) => a + b, 0) / Math.min(i+1, span))
-      return data.map((a,i) => {return {x: a.x, y: averaged[i]}})
-    }
-
-    const bigScreen = matchMedia("(min-width:1200px)");
-    function toggleDetails() {
-      if (bigScreen.matches) {
-        document.querySelectorAll('details').forEach(node => {
-          node.setAttribute('x-open', node.hasAttribute('open'));
-          node.setAttribute('open', '')
-        })
-      } else {
-        document.querySelectorAll('details').forEach(node => {
-          if (node.getAttribute('x-open') == 'true') {
-            node.setAttribute('open', '')
-          } else {
-            node.removeAttribute('open', '')
-          }
-        })
-      }
-    }
-    toggleDetails();
-    bigScreen.addListener(toggleDetails);
-
-    fetch('datasets/news.json').then(response => response.json()).then(data => {
-      const datasets = Object.keys(data.news).map(source => { 
-        const percentages = data.dates.map((d, i) => { return {
-          x: dayjs(d).toDate(),
-          y: 100*data.news[source].korona[i]/data.news[source].total[i]
-        }})
-
-        return {
-          name: source,
-          daily: percentages,
-          smoothed: floatingAvg(percentages, 7)
-        }
-      });
-      
-      const chartData = {
-        labels: data.dates,
-        series: [].concat.apply([], datasets.map(dataset => [
-          {name: dataset.name + ' daily', data: dataset.daily},
-          {name: dataset.name + ' 7-day floating average', data: dataset.smoothed}
-        ]))
-      }
-      const options = {
-        axisX: {
-          type: Chartist.FixedScaleAxis,
-          ticks: data.dates.filter(d => d.lastIndexOf('-01') == 7).map(d => dayjs(d).toDate()),
-          labelInterpolationFnc: function(value) {
-            return dayjs(value).format('MMMM D');
-          }
-        },
-        axisY: {
-          labelInterpolationFnc: function(value) {
-            return value+"%";
-          }
-        },
-        chartPadding: 0
-      }
-      
-      new Chartist.Line('#news-coverage-chart', chartData, options);  
-    });
-
-    fetch('datasets/hospitalizace.json').then(response => response.json()).then(data => {
-      const datesSlice = data.dates.slice(data.dates.indexOf("2020-03-20"));
-      const valuesSlice = data.hospitalizations.critical.slice(data.dates.indexOf("2020-03-20"));
-      const chartData = {
-        labels: datesSlice,
-        series: [valuesSlice.map((n,i) => {return {
-          x: dayjs(datesSlice[i]).toDate(),
-          y: n
-        }})]
-      }
-      const options = {
-        low: 0,
-        axisX: {
-          type: Chartist.FixedScaleAxis,
-          ticks: datesSlice.filter(d => d.lastIndexOf('-01') == 7).map(d => dayjs(d).toDate()),
-          labelInterpolationFnc: function(value) {
-            return dayjs(value).format('MMMM D');
-          }
-        },
-        axisY: {
-          onlyInteger: true
-        },
-        showPoint: false,
-        chartPadding: 0
-      }
-      new Chartist.Line('#critical-cases-chart', chartData, options);  
-    });
-
-    fetch('datasets/r0.json').then(response => response.json()).then(data => {
-      const datesSlice = data.dates.slice(data.dates.indexOf("2020-03-20"));
-      const valuesSlice = {};
-      for (key in data.estimates) {
-        valuesSlice[key] = data.estimates[key].slice(data.dates.indexOf("2020-03-20"));
-      }
-      const series = ['high','low', 'r0'].map(set => {return {
-          name: set,
-          data: valuesSlice[set].map((n,i) => {return {x: dayjs(datesSlice[i]).toDate(), y: n }})
-        }});
-      series.push({name: 'base', data:datesSlice.map(d=>{return{x: dayjs(d).toDate(), y: 1}})});
-      const chartData = {
-        labels: datesSlice,
-        series: series
-      }
-      const options = {
-        low:0, high:2.5,
-        axisX: {
-          type: Chartist.FixedScaleAxis,
-          ticks: datesSlice.filter(d => d.lastIndexOf('-01') == 7).map(d => dayjs(d).toDate()),
-          labelInterpolationFnc: function(value) {
-            return dayjs(value).format('MMMM D');
-          }
-        },
-        series: {
-          high: { showLine: false, showPoint:false, showArea:true },
-          low: { showLine: false, showPoint:false, showArea:true },
-          r0: { showPoint:false }, 
-          base: { showPoint:false }
-        },
-        chartPadding: 0
-      }
-      new Chartist.Line('#r0-chart', chartData, options);  
-    });
-  </script>
-
-  <script type="module">
-    import * as THREE from 'https://unpkg.com/three@0.125.2/build/three.module.js';
-    import { OrbitControls } from 'https://unpkg.com/three@0.125.2/examples/jsm/controls/OrbitControls.js';
-
-    let container = document.getElementById( 'container3js' );
-    let camera, scene, renderer;
-    let maxDate = '2020-03-01';
-
-
-    function fitsIn (point, vs) {
-      // ray-casting algorithm based on
-      // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
-      
-      var x = point[0], y = point[1];
-      
-      var inside = false;
-      for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-          var xi = vs[i][0], yi = vs[i][1];
-          var xj = vs[j][0], yj = vs[j][1];
-          
-          var intersect = ((yi > y) != (yj > y))
-              && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-          if (intersect) inside = !inside;
-      }
-      
-      return inside;
-    };
-
-    function prepareBuffers(data, coodrinates) {
-      let datePositions = {};
-      for (let date in data) {
-        if (dayjs(date).isAfter(dayjs(maxDate))) {
-          maxDate = date;
-        }
-        datePositions[date] = [];
-        for (let okres in data[date]) {
-          let count = data[date][okres];
-          if (coodrinates[okres]) {
-            let c = coodrinates[okres].coords;
-            const z = dayjs(date).diff(dayjs('2020-03-01'), 'd')
-
-            const dist = Math.abs(z-445)
-            for (let i=0; i<count; i++) {
-              let x,y
-              do {
-                x = c.x[0]+Math.random()*(c.x[1]-c.x[0])
-                y = c.y[0]+Math.random()*(c.y[1]-c.y[0])
-              } while (!fitsIn([x, y], c.points) || (coodrinates[okres].interiorCoords && fitsIn([x, y], coodrinates[okres].interiorCoords.points)))
-
-              const point = [150*(y-15.6), 250*(x-49.7), 2*(z-250)]
-
-              datePositions[date].push(...point)
-            }
-          }
-        }
-      }
-
-      return Object.assign(...Object.keys(datePositions).map(k => ({[k]: new THREE.Float32BufferAttribute( datePositions[k], 3 ) })))
-    }
-
-    function init(data, coodrinates) {
-      container = document.getElementById( 'container3js' );
-
-      camera = new THREE.PerspectiveCamera( 27, container.offsetWidth / container.offsetHeight, 5, 7000 );
-      camera.position.z = 2021;
-
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color( 0xfafafa );
-      scene.fog = new THREE.Fog( 0xfafafa, 6000, 7000 );
-
-      let groupBase = new THREE.Group()
-      let groupHL = new THREE.Group()
-      scene.add(groupBase)
-      scene.add(groupHL)
-      groupBase.renderOrder = 1;
-      groupHL.renderOrder = 2;
-
-      const material1 = new THREE.PointsMaterial( {
-        size:4, 
-        transparent:true, 
-        vertexColors: false, 
-        color: 0xff0000, 
-        opacity: 0.2, 
-        blending: THREE.NormalBlending, 
-        depthFunc: THREE.AlwaysDepth,  
-        alphaMap: new THREE.TextureLoader().load( "circle.png" )
-      });
-      const material2 = new THREE.PointsMaterial( {
-        size:12, 
-        transparent:true, 
-        vertexColors: false,
-        color: 0x000000, 
-        opacity: 0.33, 
-        blending: THREE.NormalBlending, 
-        depthFunc: THREE.AlwaysDepth,  
-        alphaMap: new THREE.TextureLoader().load( "circle.png" )
-      });
-
-      const buffersByDate = prepareBuffers(data, coodrinates)
-
-      let r = document.getElementById('vizRange')
-      let max = dayjs(maxDate).diff(dayjs('2020-03-01'), 'd')
-      r.max = max
-      r.value = max
-      let updateHighlight = () => {
-        let theWeek = [];
-        groupHL.traverseVisible(o => {
-          if (o.name) o.visible = false;
-        })
-        document.getElementById('vizDate').innerHTML = dayjs('2020-03-01').add(r.value,'d').format('D.M.YYYY');
-        for (let i=0; i<7; i++) {
-          let date = dayjs('2020-03-01').add(r.value-i,'d').format('YYYY-MM-DD')
-          if (groupHL.getObjectByName(date)) {
-            groupHL.getObjectByName(date).visible=true;
-          } 
-        }
-      }
-
-      for (let date in buffersByDate) {
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute( 'position', buffersByDate[date] );
-        geometry.computeBoundingSphere();
-
-        groupBase.add( new THREE.Points( geometry, material1 ) );
-
-        let highlightPoints = new THREE.Points( geometry, material2 )
-        highlightPoints.name = date;
-        groupHL.add( highlightPoints );
-      }
-
-      renderer = new THREE.WebGLRenderer();
-      renderer.setPixelRatio( window.devicePixelRatio );
-      renderer.setSize( container.offsetWidth, container.offsetHeight );
-
-      container.appendChild( renderer.domElement );
-
-      const controls = new OrbitControls( camera, renderer.domElement );
-
-      window.addEventListener( 'resize', onWindowResize );
-      r.oninput = updateHighlight;
-      updateHighlight();
-
-    }
-
-    
-    function onWindowResize() {
-      camera.aspect = container.offsetWidth / container.offsetHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize( container.offsetWidth, container.offsetHeight );
-    }
-
-    function animate() {
-      requestAnimationFrame( animate );
-      render();
-    }
-
-    function render() {
-      renderer.render( scene, camera );
-    }
-
-    
-    Promise.all([
-      fetch('./datasets/souradnice-obci/okresy.json').then(r => r.json()),
-      fetch('./datasets/okresy2.json').then(r => r.json())
-    ]).then(([coords, data]) => {
-      init(data, coords)
-      document.getElementsByClassName('placeholder')[0].remove()
-      document.getElementById('vizRange').style.visibility = 'visible'
-      animate()
-    })
-
-  </script>
+  <script src="index.js"></script>
 
   <script>
     window.ga = function () { ga.q.push(arguments) }; ga.q = []; ga.l = +new Date;

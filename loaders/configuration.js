@@ -1,9 +1,8 @@
 const config = {
   googleApiKey: '',
 
-  krajeSpreadsheetId: '1FFEDhS6VMWon_AWkJrf8j3XxjZ4J6UI1B2lO3IW-EEc',
-  krajeSpreadsheetWorksheetIndex: 2,
-  krajeOutputFile: '../datasets/okresy.json',
+  okresyUrl: "https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/obce.csv",
+  okresyOutputFile: '../datasets/okresy2.json',
 
   r0SpreadsheetId: '1cCCECunGrLmcxp5RwTRvHPLPi2Uh2J8b4NIoyFDcu7c',
   r0SpreadsheetWorksheetIndex: 0,
@@ -15,7 +14,10 @@ const config = {
   hospitalizaceOutputFile: '../datasets/hospitalizace.json',
 
   newsOutputFile: '../datasets/news.json',
-  newsEarliestStart: '2020-03-20'
+  newsEarliestStart: '2020-03-20',
+
+  ockovaniUrl: 'https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/ockovaci-mista.csv',
+  ockovaniOutputFile: '../datasets/ockovani.json'
 }
 
 const configInternal = {
