@@ -121,20 +121,37 @@ li.idnes {
   background-color: #E41F1F;
 }
 
-#vaccination-chart .ct-series-a .ct-line { stroke: #000 !important; stroke-width: 2px; }
-#vaccination-chart .ct-series-b .ct-line { stroke: #000 !important; stroke-width: 2px;  }
-#vaccination-chart .ct-series-c .ct-line { stroke: #000 !important; stroke-width: 2px;  }
-#vaccination-chart .ct-series-d .ct-line { stroke: #000 !important; stroke-width: 2px;  }
-#vaccination-chart .ct-series-e .ct-line { stroke: #000 !important; stroke-width: 2px;  }
-#vaccination-chart .ct-series-f .ct-line { stroke: #000 !important; stroke-width: 2px;  }
-#vaccination-chart .ct-series-g .ct-line { stroke: #000 !important; stroke-width: 2px; }
-#vaccination-chart .ct-series-h .ct-line { stroke: #000 !important; stroke-width: 2px;  }
-#vaccination-chart .ct-series-i .ct-line { stroke: #000 !important; stroke-width: 2px;  }
-#vaccination-chart .ct-series-j .ct-line { stroke: #000 !important; stroke-width: 2px;  }
-#vaccination-chart .ct-series-k .ct-line { stroke: #000 !important; stroke-width: 2px;  }
-#vaccination-chart .ct-series-l .ct-line { stroke: #000 !important; stroke-width: 2px;  }
-#vaccination-chart .ct-series-m .ct-line { stroke: #000 !important; stroke-width: 2px;  }
-#vaccination-chart .ct-series-n .ct-line { stroke: #000 !important; stroke-width: 2px;  }
+#vaccination-chart .ct-line { stroke: #000 !important; stroke-width: 1px; }
+
+#vaccination-gauges {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+#vaccination-gauges div.ageGaugeContainer {
+  min-width:120px;
+  width:120px;
+  height:80px;
+  margin: 6px;
+}
+
+#vaccination-gauges h3 {
+  text-align: center;
+  position: relative;
+  top:-120px;
+}
+
+#vaccination-gauges span {
+  text-align: center;
+  display:block;
+  position: relative;
+  top:-146px;
+}
+
+#vaccination-gauges .ct-series-b .ct-slice-donut {
+  stroke: #f3c5c1;
+}
 
 #container3js {
   height: 600px;

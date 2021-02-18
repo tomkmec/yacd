@@ -1,3 +1,4 @@
+// source: https://www.czso.cz/csu/czso/vekove-slozeni-obyvatelstva-2019
 const demography = [113866,114916,113801,112507,112082,109347,110396,110124,120209,121898,123396,118964,109278,103505,98771,95037,94185,92839,93186,
   92144,93667,94611,95440,101623,112676,126896,128501,136768,138864,137948,143280,142138,144427,147552,147794,147995,151034,151785,
   160010,176151,181386,183758,188194,191246,192819,180371,163487,153833,147672,141672,134662,134517,135735,140570,146483,140963,
@@ -152,6 +153,51 @@ fetch('datasets/ockovani.json').then(response => response.json()).then(data => {
     chartPadding: 0
   }
   new Chartist.Line('#vaccination-chart', chartData, options);  
+
+  const closedRangePattern = /([0-9]+)\-([0-9]+)/
+  const openRangePattern = /([0-9]+)\+/
+
+  let gaugeDiv = document.createElement('div')
+  gaugeDiv.setAttribute('class', 'ageGaugeContainer')
+  let gaugeDivInner = document.createElement('div')
+  gaugeDivInner.setAttribute('class', 'ageGauge')
+  gaugeDiv.append(gaugeDivInner)
+  gaugeDiv.append(document.createElement('h3'))
+  gaugeDiv.append(document.createElement('span'))
+
+  data.ageGroups.forEach((g,i) => {
+    let range;
+    let closedRangeMatch=closedRangePattern.exec(g)
+    let openRangeMatch=openRangePattern.exec(g)
+    if (closedRangeMatch) {
+      range = [parseInt(closedRangeMatch[1]), parseInt(closedRangeMatch[2])]
+    } else if (openRangeMatch) {
+      range = [parseInt(openRangeMatch[1])]
+    } else {
+      console.error("Couldn't parse age range " + g)
+      range = false;
+    }
+
+    if (range) {
+      let newGauge = gaugeDiv.cloneNode(true);
+      newGauge.setAttribute('id', 'vaccination-gauge-'+i);
+      document.getElementById('vaccination-gauges').append(newGauge);
+      let total = demography.slice(...range).reduce((a,b)=>a+b,0);
+      let vaccinated = data.totalsByGroup[data.ageGroups.indexOf(g)];
+      new Chartist.Pie(`#vaccination-gauge-${i} .ageGauge`, {
+        series: [vaccinated, total-vaccinated]
+      }, {
+        donut: true,
+        donutWidth: 20,
+        startAngle: 270,
+        total: total*2,
+        showLabel: false
+      });
+      newGauge.getElementsByTagName("h3")[0].innerHTML=`${Math.round(1000*vaccinated/total)/10}%`;
+      newGauge.getElementsByTagName("span")[0].innerHTML=g;
+    }
+  });
+
 });
 
 fetch('datasets/r0.json').then(response => response.json()).then(data => {

@@ -51,11 +51,17 @@
         <h2>Počet očkovaných</h2>
         <details open>
           <summary>Podrobnosti</summary>
-          <p>Počet dokončených očkování (2. dávek)</p>
-          <p>Zdroj: <a href="https://onemocneni-aktualne.mzcr.cz/covid-19/prehled-hospitalizaci">Ministerstvo zdravotnictví</a></p>
+          <p>Počet dokončených očkování (2. dávek). Skládaný graf podle věkových kategorií. Jednotlivé kategorie s aktuálním proočkováním coby procentem z celkové populace jsou znázorněny pod grafem.</p>
+          <p>Zdroje: 
+            <ul>
+              <li>MZČR: <a href="https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19">COVID-19: Přehled vykázaných očkování podle očkovacích míst ČR</a>,</li>
+              <li>ČSÚ: <a href="https://www.czso.cz/csu/czso/vekove-slozeni-obyvatelstva-2019">Věkové složení obyvatelstva - 2019</a></li>
+            </ul>
+          </p>
         </details>
       </aside>
       <figure id="vaccination-chart" class="ct-chart ct-octave"></figure>
+      <figure id="vaccination-gauges"></figure>
     </section>
 
     <section>
@@ -88,7 +94,7 @@
             Ve 3. rozměru je čas - případy nahlášené ve stejném dni jsou v jedné rovině.
           </p>
           <p>
-            Zdroj: TBD
+            Zdroj: MZČR: <a href="https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19">COVID-19: Epidemiologická charakteristika obcí</a>
           </p>
         </details>
       </aside>
