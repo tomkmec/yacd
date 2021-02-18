@@ -29,6 +29,8 @@ jobs:
       continue-on-error: true
     - run: node ./cz-r0.js
       continue-on-error: true
+      env:
+        GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
     - name: Commit
       run: |
         git config --global user.name 'Data loader action'
