@@ -9,18 +9,16 @@ jobs:
   loadData:
 
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x, 14.x, 15.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+    defaults:
+      run:
+        working-directory: loaders
 
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
-    - run: cd loaders && npm ci
+        node-version: '12.x'
+    - run: npm ci
     - run: node ./cz-hospitalizace.js
       continue-on-error: true
     - run: node ./cz-news.js
