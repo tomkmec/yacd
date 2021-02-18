@@ -1,0 +1,39 @@
+name: Data refresh
+
+on:
+  schedule:
+    - cron:  '30 8 * * *'
+  workflow_dispatch:
+
+jobs:
+  loadData:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x, 15.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: cd loaders && npm ci
+    - run: node ./cz-hospitalizace.js
+      continue-on-error: true
+    - run: node ./cz-news.js
+      continue-on-error: true
+    - run: node ./cz-ockovani.js
+      continue-on-error: true
+    - run: node ./cz-okresy2.js
+      continue-on-error: true
+    - run: node ./cz-r0.js
+      continue-on-error: true
+    - name: Commit
+      run: |
+        git config --global user.name 'Data loader action'
+        git config --global user.email 'tom.kmec@gmail.com'
+        git commit -am "Data update"
+        git push
