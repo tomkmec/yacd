@@ -129,6 +129,7 @@ fetch('datasets/hospitalizace.json').then(response => response.json()).then(data
 });
 
 fetch('datasets/ockovani.json').then(response => response.json()).then(data => {
+/*
   const chartData = {
     labels: data.dates,
     series: data.stackedDataByGroupAndDate
@@ -153,7 +154,7 @@ fetch('datasets/ockovani.json').then(response => response.json()).then(data => {
     chartPadding: 0
   }
   new Chartist.Line('#vaccination-chart', chartData, options);  
-
+*/
   const closedRangePattern = /([0-9]+)\-([0-9]+)/
   const openRangePattern = /([0-9]+)\+/
 
@@ -164,6 +165,24 @@ fetch('datasets/ockovani.json').then(response => response.json()).then(data => {
   gaugeDiv.append(gaugeDivInner)
   gaugeDiv.append(document.createElement('h3'))
   gaugeDiv.append(document.createElement('span'))
+
+  let svg = document.querySelector('#vaccination-demography svg');
+  let squareTemplate = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  squareTemplate.setAttribute('width', 7);
+  squareTemplate.setAttribute('height', 7);
+  squareTemplate.setAttribute('rx', 1);
+  squareTemplate.setAttribute('ry', 1);
+  squareTemplate.setAttribute('stroke', 'grey');
+  squareTemplate.setAttribute('fill', 'red');
+  let addSquare = (x, y, shade) => {
+    let s = squareTemplate.cloneNode();
+    s.setAttribute('x', 10*x )
+    s.setAttribute('y', 960-10*y)
+    s.setAttribute('fill-opacity', shade)
+    svg.append(s)
+  }
+
+  let suspendId = svg.suspendRedraw(60000)
 
   data.ageGroups.forEach((g,i) => {
     let range;
@@ -179,11 +198,12 @@ fetch('datasets/ockovani.json').then(response => response.json()).then(data => {
     }
 
     if (range) {
+      let total = demography.slice(...range).reduce((a,b)=>a+b,0);
+      let vaccinated = data.totalsByGroup[data.ageGroups.indexOf(g)];
+/*
       let newGauge = gaugeDiv.cloneNode(true);
       newGauge.setAttribute('id', 'vaccination-gauge-'+i);
       document.getElementById('vaccination-gauges').append(newGauge);
-      let total = demography.slice(...range).reduce((a,b)=>a+b,0);
-      let vaccinated = data.totalsByGroup[data.ageGroups.indexOf(g)];
       new Chartist.Pie(`#vaccination-gauge-${i} .ageGauge`, {
         series: [vaccinated, total-vaccinated]
       }, {
@@ -195,8 +215,26 @@ fetch('datasets/ockovani.json').then(response => response.json()).then(data => {
       });
       newGauge.getElementsByTagName("h3")[0].innerHTML=`${Math.round(1000*vaccinated/total)/10}%`;
       newGauge.getElementsByTagName("span")[0].innerHTML=g;
+*/
+      let ratios = [vaccinated/total, data.totalsFirstDoze[data.ageGroups.indexOf(g)]/total];
+
+      let max = range[1] || 99;
+      for (let a=range[0]; a<=max; a++) {
+        for (let y=0; y<demography[a]/2000; y++) {
+          let sp = (2000*(y*(max-range[0]) + max-a)) / total
+          let shade = sp<ratios[0]? 1 : (sp>ratios[1]? 0 : 0.3/*(ratios[1]-sp)/(ratios[1]-ratios[0])*/)
+          addSquare(a,y,shade);
+        }
+      }
+      let label = document.createElementNS('http://www.w3.org/2000/svg','text');
+      label.innerHTML=range[0];
+      label.setAttribute('x',range[0]*10);
+      label.setAttribute('y',980);
+      svg.append(label);
+
     }
   });
+  svg.unsuspendRedraw(suspendId)
 
 });
 
@@ -381,3 +419,5 @@ setTimeout(() => {
     animate()
   })
  }, 1000)
+
+

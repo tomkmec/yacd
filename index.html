@@ -48,10 +48,10 @@
 
     <section>
       <aside>
-        <h2>Počet očkovaných</h2>
+        <h2>Aktuální proočkovanost</h2>
         <details open>
           <summary>Podrobnosti</summary>
-          <p>Počet dokončených očkování (2. dávek). Skládaný graf podle věkových kategorií. Jednotlivé kategorie s aktuálním proočkováním coby procentem z celkové populace jsou znázorněny pod grafem.</p>
+          <p>Znázornění počtu očkovaných jednou <span class="dose one"></span> nebo dvěma <span class="dose two"/></span> dávkami v celkové populaci. Každý sloupec odpovídá věkové skupině s granuralitou 1 rok, jeden čtvereček reprezentuje 2000 lidí. Popisky věkových skupin odráží granuralitu věkových skupin v reportu očkování</p>
           <p>Zdroje: 
             <ul>
               <li>MZČR: <a href="https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19">COVID-19: Přehled vykázaných očkování podle očkovacích míst ČR</a>,</li>
@@ -60,8 +60,10 @@
           </p>
         </details>
       </aside>
-      <figure id="vaccination-chart" class="ct-chart ct-octave"></figure>
-      <figure id="vaccination-gauges"></figure>
+      <figure id="vaccination-demography">
+        <svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
+        </svg>
+      </figure>
     </section>
 
     <section>

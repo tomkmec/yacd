@@ -189,6 +189,18 @@ li.idnes {
   font-weight: bold;
 }
 
+span.dose {
+  display: inline-block;
+  width:8px;
+  height:8px;
+  border-radius:2px;
+  border:1px solid grey;
+  background-color: red;
+}
+span.dose.one {
+  background-color: #faa;
+}
+
 @-webkit-keyframes pulse {
   0% { -webkit-transform: scale(0.9); opacity: 0.3; }
   50% { -webkit-transform: scale(1); opacity: 1; }
