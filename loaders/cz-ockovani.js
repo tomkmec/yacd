@@ -4,6 +4,7 @@ const csv = require('csv-parser');
 const conf = require('./configuration.js')();
 
 const results = {};
+const totalsFirstDoze = {};
 const ageGroups = [];
 const transpose = m => m[0].map((x,i) => m.map(x => x[i]))
 
@@ -23,6 +24,10 @@ fetch(conf.ockovaniUrl)
         if (!results[datum]) results[datum] = {};
         if (!results[datum][data[7]]) results[datum][data[7]] = 0;
         results[datum][data[7]]++;
+      }
+      if (data[6]=='1' && (/[0-9\-\+]+/.test(data[7]))) {
+        if (!totalsFirstDoze[data[7]]) totalsFirstDoze[data[7]] = 0;
+        totalsFirstDoze[data[7]]++;
       }
       if ((++count)%100000 == 0) {
         console.log(`Parsed ${count/1000}k lines`);
@@ -50,6 +55,7 @@ fetch(conf.ockovaniUrl)
           preprocessed.stackedDataByGroupAndDate[i][j] += preprocessed.stackedDataByGroupAndDate[i-1][j];
         }
       }
+      preprocessed.totalsFirstDoze = preprocessed.ageGroups.map(ag => totalsFirstDoze[ag]);
 
 
       fs.writeFileSync(conf.ockovaniOutputFile, JSON.stringify(preprocessed))
