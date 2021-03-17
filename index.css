@@ -201,6 +201,50 @@ span.dose.one {
   background-color: #faa;
 }
 
+.square {
+  width: 7px;
+  height: 7px;
+  rx: 2px;
+  ry: 2px;
+  stroke: 'grey';
+}
+
+.square.dose0 {
+  fill: white;
+  stroke: #ccc;
+}
+
+.square.dose1 {
+  fill: #faa;
+  stroke: #faa;
+}
+
+.square.dose2 {
+  fill: red;
+  stroke: red;
+}
+
+.square.dose1.new {
+  animation: new1 1s infinite ease-in-out;
+}
+
+.square.dose2.new {
+  animation: new2 1s infinite ease-in-out;
+}
+
+@keyframes new1 {
+    0% { fill: white; stroke: #ccc; }
+    50% { fill: #faa; stroke: #faa; }
+    100% { fill: white; stroke: #ccc; }
+}
+
+@keyframes new2 {
+    0% {  fill: #faa; stroke: #faa; }
+    50% { fill: red; stroke: red; }
+    100% {  fill: #faa; stroke: #faa; }
+}
+
+/*
 @-webkit-keyframes pulse {
   0% { -webkit-transform: scale(0.9); opacity: 0.3; }
   50% { -webkit-transform: scale(1); opacity: 1; }
@@ -212,3 +256,4 @@ span.dose.one {
     50% { transform: scale(1); opacity: 1; }
     100% { transform: scale(0.9); opacity: 0.7; }
 }
+*/

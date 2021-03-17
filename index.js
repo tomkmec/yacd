@@ -168,17 +168,18 @@ fetch('datasets/ockovani.json').then(response => response.json()).then(data => {
 
   let svg = document.querySelector('#vaccination-demography svg');
   let squareTemplate = document.createElementNS('http://www.w3.org/2000/svg','rect');
-  squareTemplate.setAttribute('width', 7);
-  squareTemplate.setAttribute('height', 7);
-  squareTemplate.setAttribute('rx', 1);
-  squareTemplate.setAttribute('ry', 1);
-  squareTemplate.setAttribute('stroke', 'grey');
+  // squareTemplate.setAttribute('width', 7);
+  // squareTemplate.setAttribute('height', 7);
+  // squareTemplate.setAttribute('rx', 1);
+  // squareTemplate.setAttribute('ry', 1);
+  // squareTemplate.setAttribute('stroke', 'grey');
   squareTemplate.setAttribute('fill', 'red');
-  let addSquare = (x, y, shade) => {
+  let addSquare = (x, y, classes) => {
     let s = squareTemplate.cloneNode();
     s.setAttribute('x', 10*x )
     s.setAttribute('y', 960-10*y)
-    s.setAttribute('fill-opacity', shade)
+    // s.setAttribute('fill-opacity', shade)
+    s.setAttribute('class', 'square ' + classes)
     svg.append(s)
   }
 
@@ -199,7 +200,8 @@ fetch('datasets/ockovani.json').then(response => response.json()).then(data => {
 
     if (range) {
       let total = demography.slice(...range).reduce((a,b)=>a+b,0);
-      let vaccinated = data.totalsByGroup[data.ageGroups.indexOf(g)];
+      let vaccinatedLatest = data.totalsLatest[data.ageGroups.indexOf(g)];
+      let vaccinatedPrevious = data.totalsPrevious[data.ageGroups.indexOf(g)];
 /*
       let newGauge = gaugeDiv.cloneNode(true);
       newGauge.setAttribute('id', 'vaccination-gauge-'+i);
@@ -216,14 +218,18 @@ fetch('datasets/ockovani.json').then(response => response.json()).then(data => {
       newGauge.getElementsByTagName("h3")[0].innerHTML=`${Math.round(1000*vaccinated/total)/10}%`;
       newGauge.getElementsByTagName("span")[0].innerHTML=g;
 */
-      let ratios = [vaccinated/total, data.totalsFirstDoze[data.ageGroups.indexOf(g)]/total];
+      let ratios = [vaccinatedLatest[1]/total, vaccinatedLatest[0]/total];
+      let ratiosPrev = [vaccinatedPrevious[1]/total, vaccinatedPrevious[0]/total];
 
       let max = range[1] || 99;
       for (let a=range[0]; a<=max; a++) {
         for (let y=0; y<demography[a]/2000; y++) {
-          let sp = (2000*(y*(max-range[0]) + max-a)) / total
-          let shade = sp<ratios[0]? 1 : (sp>ratios[1]? 0 : 0.3/*(ratios[1]-sp)/(ratios[1]-ratios[0])*/)
-          addSquare(a,y,shade);
+          let sp = (2000*(y*(max-range[0]) + max-a + 1)) / total
+          let cls = sp<ratios[0]? 'dose2' : (sp>ratios[1] ? 'dose0' : 'dose1'/*(ratios[1]-sp)/(ratios[1]-ratios[0])*/)
+          if ((sp<ratios[0] && sp>ratiosPrev[0]) || (sp<ratios[1] && sp>ratiosPrev[1])) {
+            cls += ' new';
+          }
+          addSquare(a,y,cls);
         }
       }
       let label = document.createElementNS('http://www.w3.org/2000/svg','text');
