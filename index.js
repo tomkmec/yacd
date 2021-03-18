@@ -129,61 +129,18 @@ fetch('datasets/hospitalizace.json').then(response => response.json()).then(data
 });
 
 fetch('datasets/ockovani.json').then(response => response.json()).then(data => {
-/*
-  const chartData = {
-    labels: data.dates,
-    series: data.stackedDataByGroupAndDate
-  }
-  const options = {
-    low: 0,
-    axisX: {
-      // type: Chartist.FixedScaleAxis,
-      ticks: data.dates.filter(d => d.lastIndexOf('-01') == 7).map(d => dayjs(d).toDate()),
-      labelInterpolationFnc: function(value) {
-        return dayjs(value).format('MMM D');
-      }
-    },
-    axisY: {
-      // onlyInteger: true
-      labelInterpolationFnc: function(value) {
-        return `${value/1000}k`;
-      }
-    },
-    showPoint: false,
-    showArea: true,
-    chartPadding: 0
-  }
-  new Chartist.Line('#vaccination-chart', chartData, options);  
-*/
   const closedRangePattern = /([0-9]+)\-([0-9]+)/
   const openRangePattern = /([0-9]+)\+/
 
-  let gaugeDiv = document.createElement('div')
-  gaugeDiv.setAttribute('class', 'ageGaugeContainer')
-  let gaugeDivInner = document.createElement('div')
-  gaugeDivInner.setAttribute('class', 'ageGauge')
-  gaugeDiv.append(gaugeDivInner)
-  gaugeDiv.append(document.createElement('h3'))
-  gaugeDiv.append(document.createElement('span'))
-
   let svg = document.querySelector('#vaccination-demography svg');
   let squareTemplate = document.createElementNS('http://www.w3.org/2000/svg','rect');
-  // squareTemplate.setAttribute('width', 7);
-  // squareTemplate.setAttribute('height', 7);
-  // squareTemplate.setAttribute('rx', 1);
-  // squareTemplate.setAttribute('ry', 1);
-  // squareTemplate.setAttribute('stroke', 'grey');
-  squareTemplate.setAttribute('fill', 'red');
   let addSquare = (x, y, classes) => {
     let s = squareTemplate.cloneNode();
     s.setAttribute('x', 10*x )
     s.setAttribute('y', 960-10*y)
-    // s.setAttribute('fill-opacity', shade)
     s.setAttribute('class', 'square ' + classes)
     svg.append(s)
   }
-
-  let suspendId = svg.suspendRedraw(60000)
 
   data.ageGroups.forEach((g,i) => {
     let range;
@@ -192,55 +149,61 @@ fetch('datasets/ockovani.json').then(response => response.json()).then(data => {
     if (closedRangeMatch) {
       range = [parseInt(closedRangeMatch[1]), parseInt(closedRangeMatch[2])]
     } else if (openRangeMatch) {
-      range = [parseInt(openRangeMatch[1])]
+      range = [parseInt(openRangeMatch[1]), 100]
     } else {
       console.error("Couldn't parse age range " + g)
       range = false;
     }
 
     if (range) {
-      let total = demography.slice(...range).reduce((a,b)=>a+b,0);
-      let vaccinatedLatest = data.totalsLatest[data.ageGroups.indexOf(g)];
-      let vaccinatedPrevious = data.totalsPrevious[data.ageGroups.indexOf(g)];
-/*
-      let newGauge = gaugeDiv.cloneNode(true);
-      newGauge.setAttribute('id', 'vaccination-gauge-'+i);
-      document.getElementById('vaccination-gauges').append(newGauge);
-      new Chartist.Pie(`#vaccination-gauge-${i} .ageGauge`, {
-        series: [vaccinated, total-vaccinated]
-      }, {
-        donut: true,
-        donutWidth: 20,
-        startAngle: 270,
-        total: total*2,
-        showLabel: false
-      });
-      newGauge.getElementsByTagName("h3")[0].innerHTML=`${Math.round(1000*vaccinated/total)/10}%`;
-      newGauge.getElementsByTagName("span")[0].innerHTML=g;
-*/
-      let ratios = [vaccinatedLatest[1]/total, vaccinatedLatest[0]/total];
-      let ratiosPrev = [vaccinatedPrevious[1]/total, vaccinatedPrevious[0]/total];
+      let total = demography.slice(range[0],range[1]+1).reduce((a,b)=>a+b);
+      //the implied total will be larger due to rounding up to whole 2000 in each year
+      let totalSquares = demography.slice(range[0],range[1]+1).map(a=>Math.ceil(a/2000)).reduce((a,b)=>a+b); 
 
-      let max = range[1] || 99;
-      for (let a=range[0]; a<=max; a++) {
-        for (let y=0; y<demography[a]/2000; y++) {
-          let sp = (2000*(y*(max-range[0]) + max-a + 1)) / total
-          let cls = sp<ratios[0]? 'dose2' : (sp>ratios[1] ? 'dose0' : 'dose1'/*(ratios[1]-sp)/(ratios[1]-ratios[0])*/)
-          if ((sp<ratios[0] && sp>ratiosPrev[0]) || (sp<ratios[1] && sp>ratiosPrev[1])) {
-            cls += ' new';
+      // Progress adjusted to the rounded-up demography, eventually mapped to # of squares.
+      // The number is rounded, so that 0-999 vaccinated -> 0 squares, 1000-2999 -> 1, 3000-4999 -> 2, etc.
+      // array [previous day final doze, today final doze, previous day initial doze, today initial doze] (should be ascending for sanity check)
+      let progress = [
+        data.totalsPrevious[data.ageGroups.indexOf(g)][1],
+        data.totalsLatest[data.ageGroups.indexOf(g)][1],
+        data.totalsPrevious[data.ageGroups.indexOf(g)][0],
+        data.totalsLatest[data.ageGroups.indexOf(g)][0]
+      ]
+      .map(vaccinated => Math.round(vaccinated*totalSquares/total))
+      
+      let y=0, squareCount=0;
+      do {
+        for (let age = range[1]; age>=range[0]; age--) {
+          if (y<Math.ceil(demography[age]/2000)) {
+            let className = 'dose0';
+            if (squareCount<progress[1]) {
+              className = 'dose2'
+              if (squareCount>progress[0]) {
+                className += ' new'
+              }
+            } else if (squareCount<progress[3]) {
+              className = 'dose1'
+              if (squareCount>progress[2]) {
+                className += ' new'
+              }
+            }
+            addSquare(age+i/5,y,className);
+            squareCount++;
           }
-          addSquare(a,y,cls);
         }
+        y++;
+      } while (squareCount<totalSquares && y<100)
+      if (y==100) {
+        console.error("Something went wrong.", squareCount, totalSquares, range)
       }
+
       let label = document.createElementNS('http://www.w3.org/2000/svg','text');
       label.innerHTML=range[0];
-      label.setAttribute('x',range[0]*10);
+      label.setAttribute('x',range[0]*10+i*2);
       label.setAttribute('y',980);
       svg.append(label);
-
     }
   });
-  svg.unsuspendRedraw(suspendId)
 
 });
 
@@ -425,5 +388,3 @@ setTimeout(() => {
     animate()
   })
  }, 1000)
-
-
