@@ -170,6 +170,10 @@ fetch('datasets/ockovani.json').then(response => response.json()).then(data => {
         data.totalsLatest[data.ageGroups.indexOf(g)][0]
       ]
       .map(vaccinated => Math.round(vaccinated*totalSquares/total))
+
+      console.log(`age group ${g}: total population ${total} maps to ${totalSquares} squares (~${parseInt(total/totalSquares)} per square). `
+        +`1st dose yesterday ${data.totalsPrevious[data.ageGroups.indexOf(g)][0]} (${progress[2]} sq.), today ${data.totalsLatest[data.ageGroups.indexOf(g)][0]} (${progress[3]} sq.). `
+        +`2nd dose yesterday ${data.totalsPrevious[data.ageGroups.indexOf(g)][1]} (${progress[0]} sq.), today ${data.totalsLatest[data.ageGroups.indexOf(g)][1]} (${progress[1]} sq.). `)
       
       let y=0, squareCount=0;
       do {
@@ -178,12 +182,12 @@ fetch('datasets/ockovani.json').then(response => response.json()).then(data => {
             let className = 'dose0';
             if (squareCount<progress[1]) {
               className = 'dose2'
-              if (squareCount>progress[0]) {
+              if (squareCount>=progress[0]) {
                 className += ' new'
               }
             } else if (squareCount<progress[3]) {
               className = 'dose1'
-              if (squareCount>progress[2]) {
+              if (squareCount>=progress[2]) {
                 className += ' new'
               }
             }

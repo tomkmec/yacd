@@ -220,13 +220,15 @@ span.dose.one {
 
 @keyframes new1 {
     0% { fill: white; stroke: #ccc; }
-    50% { fill: #faa; stroke: #faa; }
+    20% { fill: #faa; stroke: #faa; }
+    80% { fill: #faa; stroke: #faa; }
     100% { fill: white; stroke: #ccc; }
 }
 
 @keyframes new2 {
     0% {  fill: #faa; stroke: #faa; }
-    50% { fill: red; stroke: red; }
+    20% { fill: red; stroke: red; }
+    80% { fill: red; stroke: red; }
     100% {  fill: #faa; stroke: #faa; }
 }
 
@@ -239,20 +241,6 @@ span.dose.one {
   align-items: center;
 }
 
-a.button{
-  display:inline-block;
-  padding:0.35em 1.2em;
-  border:0.1em solid black;
-  border-radius:0.12em;
-  box-sizing: border-box;
-  text-decoration:none;
-  font-weight:300;
-  text-align:center;
-  transition: all 0.2s;
-  margin:0.4em auto;
-  cursor:pointer;
-  background-color: white;
-}
 a.button:hover{
   color:white;
   background-color:black;
