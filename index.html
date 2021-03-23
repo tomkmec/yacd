@@ -36,18 +36,6 @@
 
     <section>
       <aside>
-        <h2>Hospitalizace, těžký stav</h2>
-        <details open>
-          <summary>Podrobnosti</summary>
-          <p>Počet hospitalizovaných osob v těžkém stavu a/nebo s vysoce intensivní péčí. Ukazuje nebezpečí přetížení zdravotnického systému</p>
-          <p>Zdroj: <a href="https://onemocneni-aktualne.mzcr.cz/covid-19/prehled-hospitalizaci">Ministerstvo zdravotnictví</a></p>
-        </details>
-      </aside>
-      <figure id="critical-cases-chart" class="ct-chart ct-octave"></figure>
-    </section>
-
-    <section>
-      <aside>
         <h2>Aktuální proočkovanost</h2>
         <details open>
           <summary>Podrobnosti</summary>
@@ -64,6 +52,18 @@
         <svg viewBox="0 0 1040 1040" xmlns="http://www.w3.org/2000/svg">
         </svg>
       </figure>
+    </section>
+
+    <section>
+      <aside>
+        <h2>Hospitalizace, těžký stav</h2>
+        <details open>
+          <summary>Podrobnosti</summary>
+          <p>Počet hospitalizovaných osob v těžkém stavu a/nebo s vysoce intensivní péčí. Ukazuje nebezpečí přetížení zdravotnického systému</p>
+          <p>Zdroj: <a href="https://onemocneni-aktualne.mzcr.cz/covid-19/prehled-hospitalizaci">Ministerstvo zdravotnictví</a></p>
+        </details>
+      </aside>
+      <figure id="critical-cases-chart" class="ct-chart ct-octave"></figure>
     </section>
 
     <section>
@@ -101,9 +101,11 @@
         </details>
       </aside>
       <figure id="container3js">
+        <div class="placeholder">
+          <a class="button">Spustit 3D vizualizaci</a>
+        </div>
         <input id="vizRange" type="range" value="0" />
         <span id="vizDate"></span>
-        <span class="placeholder">O</span>
       </figure>
     </section>
 

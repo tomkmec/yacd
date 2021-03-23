@@ -377,7 +377,11 @@ function render() {
   renderer.render( scene, camera );
 }
 
-setTimeout(() => {
+let button = document.querySelector('#container3js .button');
+let trigger = () => {
+  button.removeEventListener('click', trigger);
+  button.setAttribute('class', 'button triggered');
+  button.innerHTML="Spouštím...";
   Promise.all([
     fetch('./datasets/souradnice-obci/okresy.json').then(r => r.json()),
     fetch('./datasets/okresy2.json').then(r => r.json())
@@ -387,4 +391,6 @@ setTimeout(() => {
     document.getElementById('vizRange').style.visibility = 'visible'
     animate()
   })
- }, 1000)
+  
+}
+button.addEventListener('click', trigger);

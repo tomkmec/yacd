@@ -161,20 +161,6 @@ li.idnes {
   margin-right: 0;
 }
 
-#container3js .placeholder {
-  font-family: Infected;
-  width: 100%;
-  font-size: 200px;
-  position: absolute;
-  text-align: center;
-
-  -webkit-animation: pulse 2s infinite ease-in-out;
-  -o-animation: pulse 2s infinite ease-in-out;
-  -ms-animation: pulse 2s infinite ease-in-out; 
-  -moz-animation: pulse 2s infinite ease-in-out; 
-  animation: pulse 2s infinite ease-in-out;
-}
-
 #vizRange {
   width:100%;
   visibility: hidden;
@@ -244,16 +230,50 @@ span.dose.one {
     100% {  fill: #faa; stroke: #faa; }
 }
 
-/*
-@-webkit-keyframes pulse {
-  0% { -webkit-transform: scale(0.9); opacity: 0.3; }
-  50% { -webkit-transform: scale(1); opacity: 1; }
-  100% { -webkit-transform: scale(0.9); opacity: 0.3; }
+#container3js .placeholder {
+  background: linear-gradient(rgba(255,255,255, 0.8), rgba(255, 255, 255, 0.8)), url(public/3d-placeholder.png);
+  height: inherit;
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
-@keyframes pulse {
-    0% { transform: scale(0.9); opacity: 0.7; }
-    50% { transform: scale(1); opacity: 1; }
-    100% { transform: scale(0.9); opacity: 0.7; }
+a.button{
+  display:inline-block;
+  padding:0.35em 1.2em;
+  border:0.1em solid black;
+  border-radius:0.12em;
+  box-sizing: border-box;
+  text-decoration:none;
+  font-weight:300;
+  text-align:center;
+  transition: all 0.2s;
+  margin:0.4em auto;
+  cursor:pointer;
+  background-color: white;
 }
-*/
+a.button:hover{
+  color:white;
+  background-color:black;
+}
+
+a.button{
+  display:inline-block;
+  padding:0.35em 1.2em;
+  border:0.1em solid black;
+  border-radius:0.12em;
+  box-sizing: border-box;
+  text-decoration:none;
+  font-weight:300;
+  text-align:center;
+  transition: all 0.2s;
+  margin:0.4em auto;
+  cursor:pointer;
+  background-color: white;
+}
+
+a.button.triggered{
+  cursor: progress;
+  background-color: grey;
+}
