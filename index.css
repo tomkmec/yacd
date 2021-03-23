@@ -233,7 +233,7 @@ span.dose.one {
 }
 
 #container3js .placeholder {
-  background: linear-gradient(rgba(255,255,255, 0.8), rgba(255, 255, 255, 0.8)), url(public/3d-placeholder.png);
+  background: linear-gradient(rgba(255,255,255, 0.8), rgba(255, 255, 255, 0.8)), url(public/3d-placeholder.PNG);
   height: inherit;
   text-align: center;
   display: flex;
