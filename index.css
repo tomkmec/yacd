@@ -29,6 +29,17 @@ h2 {
 }
 
 
+div.notice {
+  background-color: lightyellow;
+  text-align: center;
+  padding: 2em;
+  margin: 4em 0;
+  border: 2px solid black;
+  border-radius: 10px;
+  font-size: 130%;
+  font-weight: bold;
+}
+
 @media (min-width:1200px) {
   summary {
     display: none;
